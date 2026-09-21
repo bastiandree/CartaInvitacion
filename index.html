@@ -5,22 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yanella & Rodrigo — Nuestra Boda</title>
 
-  <!-- Metadatos Open Graph para previsualización en WhatsApp / Redes -->
+  <!-- Open Graph Meta Tags para compartir en WhatsApp, Telegram y Redes -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Yanella & Rodrigo — Invitación de Nuestra Boda">
-  <meta property="og:description" content="Nos casamos y queremos que formes parte de este momento tan especial. ¡Acompáñanos a celebrar el amor!">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop">
+  <meta property="og:description" content="Nos casamos y soñamos con compartir este momento único contigo. Descubre los detalles de nuestra boda y déjanos tus palabras en el mural.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80">
   <meta name="theme-color" content="#b89358">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Google Fonts: Cormorant Garamond, Great Vibes & Montserrat -->
+
+  <!-- Google Fonts: Cormorant Garamond, Great Vibes y Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -31,15 +32,16 @@
             sans: ['Montserrat', 'sans-serif'],
           },
           colors: {
-            gold: {
-              DEFAULT: '#b89358',
-              light: '#d4af37',
-              dark: '#997332',
-              50: '#fdfbf7',
-              100: '#f7f1e5',
-            },
-            champagne: '#fbf8f3',
-            espresso: '#1a1815'
+            wedding: {
+              cream: '#FAF7F2',
+              surface: '#FFFFFF',
+              accent: '#B38E5D',      // Dorado suave
+              accentDark: '#8F6E3F',
+              accentLight: '#F3EADB',
+              stoneDark: '#2C2825',
+              stoneMuted: '#6B655E',
+              borderGold: 'rgba(179, 142, 93, 0.28)'
+            }
           }
         }
       }
@@ -47,469 +49,855 @@
   </script>
 
   <style>
-    /* Efecto de grano sutil */
-    .bg-paper {
-      background-color: #fbf8f3;
-      background-image: radial-gradient(#d4af37 0.6px, transparent 0.6px);
-      background-size: 28px 28px;
+    body {
+      background-color: #FAF7F2;
+      color: #2C2825;
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
     }
+
+    /* Textura de papel fino */
+    .bg-paper-texture {
+      background-color: #FAF7F2;
+      background-image: radial-gradient(#B38E5D 0.55px, transparent 0.55px);
+      background-size: 26px 26px;
+    }
+
     .gold-gradient-text {
-      background: linear-gradient(135deg, #b89358 0%, #d4af37 50%, #997332 100%);
+      background: linear-gradient(135deg, #8F6E3F 0%, #D4AF37 45%, #B38E5D 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .gold-border-ornament {
-      box-shadow: 0 0 0 1px rgba(184, 147, 88, 0.25), 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+
+    .gold-border {
+      border: 1px solid rgba(179, 142, 93, 0.28);
+    }
+
+    .gold-shadow {
+      box-shadow: 0 14px 35px -12px rgba(179, 142, 93, 0.15);
+    }
+
+    /* Canvas de pétalos */
+    #petalCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Tarjeta postal de mural */
+    .postcard-shadow {
+      box-shadow: 0 8px 24px -6px rgba(44, 40, 37, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
     }
   </style>
 </head>
 
-<body class="bg-paper text-stone-800 font-sans antialiased relative selection:bg-gold-light selection:text-white overflow-x-hidden">
+<body class="bg-paper-texture selection:bg-wedding-accentLight selection:text-wedding-stoneDark relative">
 
-  <!-- Lienzo de Pétalos y Partículas -->
-  <canvas id="petalCanvas" class="fixed inset-0 pointer-events-none z-10 opacity-75"></canvas>
+  <!-- Canvas animado de pétalos y destellos dorados -->
+  <canvas id="petalCanvas"></canvas>
 
-  <!-- Botones de Control Flotantes -->
+
+  <!-- Controles flotantes (Música y Pétalos) -->
   <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-    <!-- Música Ambiental -->
-    <button id="musicToggle" class="w-12 h-12 rounded-full bg-white/95 text-gold-dark shadow-xl border border-gold/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Activar/Pausar música">
-      <i id="musicIcon" class="fa-solid fa-volume-xmark text-lg"></i>
+    <!-- Música Ambiental Web Audio -->
+    <button id="btnMusicToggle" class="w-12 h-12 rounded-full bg-white/95 text-wedding-accent shadow-xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Música romántica ambiental">
+      <i id="musicIcon" class="fa-solid fa-volume-xmark text-base"></i>
     </button>
-    <!-- Partículas On/Off -->
-    <button id="particlesToggle" class="w-12 h-12 rounded-full bg-white/95 text-stone-600 shadow-xl border border-stone-200 flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Pausar animación de pétalos">
-      <i class="fa-solid fa-spa text-lg"></i>
+    <!-- Toggle animación de pétalos -->
+    <button id="btnPetalsToggle" class="w-12 h-12 rounded-full bg-white/95 text-wedding-stoneMuted shadow-xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Pausar/Activar pétalos flotantes">
+      <i id="petalsIcon" class="fa-solid fa-spa text-base"></i>
     </button>
   </div>
 
-  <!-- SECCIÓN: HERO PRINCIPAL -->
-  <header class="min-h-screen relative flex items-center justify-center text-center px-4 py-20">
-    <div class="max-w-3xl mx-auto z-20 flex flex-col items-center">
-      
-      <!-- Ornamento superior -->
-      <div class="flex items-center gap-3 text-gold mb-6 opacity-80">
-        <span class="h-px w-12 bg-gold/40"></span>
-        <i class="fa-regular fa-heart text-xs"></i>
-        <span class="h-px w-12 bg-gold/40"></span>
-      </div>
-
-      <p class="font-sans text-xs uppercase tracking-[0.35em] text-stone-500 mb-3">
-        Nuestra Boda
-      </p>
-
-      <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl text-stone-900 tracking-tight leading-none mb-4 italic">
-        Yanella <span class="font-script text-5xl md:text-7xl not-italic text-gold block sm:inline my-1 sm:my-0">&</span> Rodrigo
-      </h1>
-
-      <p class="font-serif italic text-xl md:text-2xl text-stone-600 max-w-xl mx-auto mb-8 leading-relaxed">
-        «El amor no se mira con los ojos, sino con el corazón.»
-      </p>
-
-      <!-- Fecha Display Hero -->
-      <div class="inline-block py-2 px-6 border-y border-gold/40 text-stone-700 tracking-[0.2em] uppercase text-xs md:text-sm mb-12">
-        <span id="heroDateText">Próximamente</span>
-      </div>
-
-      <!-- Cuenta Regresiva -->
-      <div class="grid grid-cols-4 gap-3 md:gap-6 text-center max-w-md w-full bg-white/70 backdrop-blur-md p-6 rounded-2xl border border-gold/20 shadow-lg">
-        <div class="flex flex-col">
-          <span id="cdDays" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
-          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Días</span>
-        </div>
-        <div class="flex flex-col">
-          <span id="cdHours" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
-          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Horas</span>
-        </div>
-        <div class="flex flex-col">
-          <span id="cdMins" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
-          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Min</span>
-        </div>
-        <div class="flex flex-col">
-          <span id="cdSecs" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
-          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Seg</span>
-        </div>
-      </div>
-
-      <!-- Flecha hacia abajo -->
-      <a href="#ceremonia" class="mt-14 text-stone-400 hover:text-gold transition-colors animate-bounce">
-        <i class="fa-solid fa-chevron-down text-lg"></i>
+  <!-- Barra de Navegación Suave -->
+  <nav class="sticky top-0 z-30 bg-[#FAF7F2]/90 backdrop-blur-md border-b gold-border">
+    <div class="max-w-5xl mx-auto px-5 py-3.5 flex items-center justify-between">
+      <a href="#hero" class="font-script text-2xl md:text-3xl text-wedding-stoneDark hover:text-wedding-accent transition-colors">
+        Yanella & Rodrigo
       </a>
 
+      <!-- Enlaces Escritorio -->
+      <div class="hidden md:flex items-center space-x-6 text-[11px] uppercase tracking-[0.2em] font-medium text-wedding-stoneMuted">
+        <a href="#historia" class="hover:text-wedding-accent transition-colors">Nuestra Historia</a>
+        <a href="#itinerario" class="hover:text-wedding-accent transition-colors">Itinerario</a>
+        <a href="#ubicacion" class="hover:text-wedding-accent transition-colors">Ubicación</a>
+        <a href="#dresscode" class="hover:text-wedding-accent transition-colors">Dress Code</a>
+        <a href="#regalos" class="hover:text-wedding-accent transition-colors">Regalos</a>
+        <a href="#mural" class="px-4 py-2 rounded-full border gold-border text-wedding-accent hover:bg-wedding-accent hover:text-white transition-all font-semibold">Dejar Mensaje</a>
+      </div>
+
+      <!-- Menú Móvil Botón -->
+      <button id="btnMobileMenu" class="md:hidden text-wedding-stoneDark p-1.5 focus:outline-none" aria-label="Abrir Menú">
+        <i class="fa-solid fa-bars text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Menú Desplegable Móvil -->
+    <div id="mobileMenu" class="hidden md:hidden bg-[#FAF7F2] border-t gold-border px-6 py-4 flex flex-col space-y-3 text-xs tracking-widest uppercase text-center font-medium">
+      <a href="#historia" class="mobile-nav-link py-1">Nuestra Historia</a>
+      <a href="#itinerario" class="mobile-nav-link py-1">Itinerario</a>
+      <a href="#ubicacion" class="mobile-nav-link py-1">Ubicación</a>
+      <a href="#dresscode" class="mobile-nav-link py-1">Dress Code</a>
+      <a href="#regalos" class="mobile-nav-link py-1">Regalos</a>
+      <a href="#mural" class="mobile-nav-link py-2 bg-wedding-accent text-white rounded-full font-semibold">Dejar Mensaje</a>
+    </div>
+  </nav>
+
+
+  <!-- SECCIÓN 1: HERO PRINCIPAL -->
+  <header id="hero" class="relative min-h-[92vh] flex items-center justify-center text-center px-4 pt-16 pb-20 overflow-hidden">
+    <!-- Círculos decorativos sutiles -->
+    <div class="absolute w-96 h-96 rounded-full border border-wedding-accent/15 -top-20 -left-20 pointer-events-none"></div>
+    <div class="absolute w-[500px] h-[500px] rounded-full border border-wedding-accent/10 -bottom-32 -right-32 pointer-events-none"></div>
+
+    <div class="max-w-3xl mx-auto z-10">
+      <!-- Coronilla ornamental -->
+      <div class="flex items-center justify-center gap-3 mb-4 opacity-75">
+        <span class="h-px w-10 bg-wedding-accent"></span>
+        <i class="fa-regular fa-heart text-wedding-accent text-xs"></i>
+        <span class="h-px w-10 bg-wedding-accent"></span>
+      </div>
+
+      <p class="text-xs uppercase tracking-[0.35em] text-wedding-accent font-semibold mb-3">
+        ¡Nos Casamos!
+      </p>
+
+      <h1 class="font-serif italic text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-wedding-stoneDark my-2 leading-tight">
+        Yanella <span class="font-script not-italic text-5xl sm:text-6xl md:text-7xl text-wedding-accent block sm:inline my-1 sm:my-0">&</span> Rodrigo
+      </h1>
+
+      <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-wedding-stoneMuted max-w-xl mx-auto mt-4 mb-8 font-light">
+        "El amor no consiste en mirarse el uno al otro, sino en mirar juntos en la misma dirección."
+      </p>
+
+      <!-- Banner de Fecha Dinámica -->
+      <div class="inline-flex items-center gap-3 py-2 px-6 rounded-full border gold-border bg-white/75 backdrop-blur-sm mb-12 shadow-sm">
+        <span class="w-1.5 h-1.5 rounded-full bg-wedding-accent"></span>
+        <span id="heroDateDisplay" class="font-serif tracking-widest text-sm md:text-base font-medium text-wedding-stoneDark uppercase">
+          Cargando fecha...
+        </span>
+        <span class="w-1.5 h-1.5 rounded-full bg-wedding-accent"></span>
+      </div>
+
+      <!-- Cuenta Regresiva Viva -->
+      <div class="grid grid-cols-4 gap-3 sm:gap-6 max-w-md mx-auto mb-10">
+        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+          <span id="cdDays" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Días</span>
+        </div>
+        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+          <span id="cdHours" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Horas</span>
+        </div>
+        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+          <span id="cdMins" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Min</span>
+        </div>
+        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+          <span id="cdSecs" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-accent">00</span>
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Seg</span>
+        </div>
+      </div>
+
+      <!-- Botón de desplazamiento directo al mural -->
+      <a href="#mural" class="inline-flex items-center gap-2 px-8 py-3.5 bg-wedding-accent text-white text-xs uppercase tracking-[0.2em] font-medium rounded-full shadow-md hover:bg-wedding-accentDark hover:shadow-lg transition-all">
+        <i class="fa-regular fa-comment-dots text-sm"></i> Dejar un Mensaje en el Mural
+      </a>
     </div>
   </header>
 
-  <!-- SECCIÓN: EL EVENTO (CEREMONIA, RECEPCIÓN Y FIESTA EN EL MISMO LUGAR) -->
-  <section id="ceremonia" class="py-24 px-4 max-w-4xl mx-auto relative z-20">
+
+  <!-- SECCIÓN 2: NUESTRA HISTORIA (Línea de tiempo con imágenes) -->
+  <section id="historia" class="py-24 px-5 max-w-5xl mx-auto relative z-20">
     <div class="text-center mb-16">
-      <span class="font-script text-3xl md:text-4xl text-gold block mb-2">Celebración Única</span>
-      <h2 class="font-serif text-4xl md:text-5xl text-stone-900 tracking-wide uppercase font-light">
-        Ceremonia, Recepción & Fiesta
-      </h2>
-      <div class="h-0.5 w-16 bg-gold/50 mx-auto mt-4"></div>
-      <p class="font-serif italic text-lg text-stone-600 max-w-lg mx-auto mt-4">
-        Todo nuestro evento se llevará a cabo en una sola locación para que disfrutemos de principio a fin sin traslados.
+      <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">El camino que recorrimos</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Nuestra Historia de Amor</h2>
+      <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+      <p class="font-serif italic text-base md:text-lg text-wedding-stoneMuted max-w-lg mx-auto mt-3 font-light">
+        Cada recuerdo, cada paso y cada mirada nos trajeron hasta el día más especial de nuestras vidas.
       </p>
     </div>
 
-    <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 md:p-12 gold-border-ornament text-center relative overflow-hidden">
-      <!-- Ornamento fondo sutil -->
-      <div class="absolute -top-12 -right-12 text-gold/5 text-9xl select-none pointer-events-none">
-        <i class="fa-solid fa-ring"></i>
+    <!-- Timeline Wrapper -->
+    <div class="relative space-y-16 sm:space-y-24 before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:w-px before:bg-wedding-accent/30 hidden sm:block">
+
+      <!-- Hito 1: Cómo nos conocimos -->
+      <div class="flex items-center justify-between">
+        <!-- Texto Izquierda -->
+        <div class="w-5/12 text-right pr-8">
+          <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">El Comienzo</span>
+          <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">Una Mirada, Una Conversación</h3>
+          <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
+            Todo empezó con una charla espontánea que parecía no tener final. Entre risas y confidencias, descubrimos que compartíamos los mismos sueños y una complicidad única que creció día tras día.
+          </p>
+          <span class="font-serif italic text-xs text-wedding-accent">"Supimos que algo hermoso nacía entre los dos."</span>
+        </div>
+
+        <!-- Círculo Central -->
+        <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
+          <i class="fa-solid fa-mug-saucer"></i>
+        </div>
+
+        <!-- Imagen Derecha -->
+        <div class="w-5/12 pl-8">
+          <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="Primer encuentro de Yanella y Rodrigo" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+          </div>
+        </div>
       </div>
 
-      <div class="w-16 h-16 rounded-full bg-gold-50 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
-        <i class="fa-solid fa-champagne-glasses"></i>
+      <!-- Hito 2: Aventuras juntos -->
+      <div class="flex items-center justify-between">
+        <!-- Imagen Izquierda -->
+        <div class="w-5/12 text-right pr-8">
+          <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
+            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80" alt="Viajes y aventuras juntos" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+          </div>
+        </div>
+
+        <!-- Círculo Central -->
+        <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
+          <i class="fa-solid fa-plane-departure"></i>
+        </div>
+
+        <!-- Texto Derecha -->
+        <div class="w-5/12 pl-8">
+          <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">Creciendo Juntos</span>
+          <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">Incontables Aventuras & Viajes</h3>
+          <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
+            Recorrimos ciudades, atardeceres frente al mar y nuevos senderos. En cada viaje reafirmamos que cualquier lugar del mundo se convierte en hogar si estamos de la mano el uno con el otro.
+          </p>
+          <span class="font-serif italic text-xs text-wedding-accent">"El mejor equipo ante cualquier desafío de la vida."</span>
+        </div>
       </div>
 
-      <h3 class="font-serif text-2xl md:text-3xl text-stone-900 mb-2 font-medium">
-        Lugar del Evento
-      </h3>
+      <!-- Hito 3: La Propuesta -->
+      <div class="flex items-center justify-between">
+        <!-- Texto Izquierda -->
+        <div class="w-5/12 text-right pr-8">
+          <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">El Compromiso</span>
+          <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">El Gran "¡Sí, Quiero!"</h3>
+          <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
+            Bajo una atmósfera mágica e irrepetible, llegó la pregunta que selló nuestro destino. Con lágrimas de felicidad y el corazón desbordado de emoción, dijimos que sí a una vida entera juntos.
+          </p>
+          <span class="font-serif italic text-xs text-wedding-accent">"Y hoy queremos que nos acompañes a celebrar este amor."</span>
+        </div>
 
-      <!-- Estado: Por Confirmar -->
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold tracking-wider uppercase mb-6">
+        <!-- Círculo Central -->
+        <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
+          <i class="fa-solid fa-ring"></i>
+        </div>
+
+        <!-- Imagen Derecha -->
+        <div class="w-5/12 pl-8">
+          <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
+            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" alt="La propuesta de matrimonio" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Timeline en móviles (Layout apilado vertical) -->
+    <div class="sm:hidden space-y-12 pl-6 border-l-2 border-wedding-accent/30 relative">
+      <!-- Card Móvil 1 -->
+      <div class="relative space-y-3">
+        <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
+          <i class="fa-solid fa-mug-saucer"></i>
+        </span>
+        <span class="text-[10px] uppercase tracking-widest text-wedding-accent font-semibold">El Comienzo</span>
+        <h3 class="font-serif text-2xl text-wedding-stoneDark">Una Mirada, Una Conversación</h3>
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="Primer encuentro" class="w-full h-44 object-cover rounded-xl border gold-border">
+        <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
+          Una charla espontánea llena de risas que rápidamente se convirtió en un amor sólido y sincero.
+        </p>
+      </div>
+
+      <!-- Card Móvil 2 -->
+      <div class="relative space-y-3">
+        <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
+          <i class="fa-solid fa-plane-departure"></i>
+        </span>
+        <span class="text-[10px] uppercase tracking-widest text-wedding-accent font-semibold">Creciendo Juntos</span>
+        <h3 class="font-serif text-2xl text-wedding-stoneDark">Incontables Aventuras</h3>
+        <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="Aventuras de Yanella y Rodrigo" class="w-full h-44 object-cover rounded-xl border gold-border">
+        <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
+          Compañeros de viaje y de vida. Cada paso afianzó la certeza de que somos el mejor equipo.
+        </p>
+      </div>
+
+      <!-- Card Móvil 3 -->
+      <div class="relative space-y-3">
+        <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
+          <i class="fa-solid fa-ring"></i>
+        </span>
+        <span class="text-[10px] uppercase tracking-widest text-wedding-accent font-semibold">El Compromiso</span>
+        <h3 class="font-serif text-2xl text-wedding-stoneDark">El "¡Sí, Quiero!"</h3>
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="La propuesta" class="w-full h-44 object-cover rounded-xl border gold-border">
+        <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
+          Con el corazón acelerado prometimos caminar juntos para siempre. ¡Bienvenidos a celebrar nuestro gran día!
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SECCIÓN 3: ITINERARIO DEL GRAN DÍA -->
+  <section id="itinerario" class="py-20 bg-white border-y gold-border relative z-20">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="text-center mb-16">
+        <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Momentos Especiales</span>
+        <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Itinerario del Evento</h2>
+        <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+        <p class="text-xs md:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light">
+          Un recorrido pensado para disfrutar cada instante junto a las personas que más queremos.
+        </p>
+      </div>
+
+      <!-- Cuadrícula de Horarios e Hitos -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        
+        <!-- Hito 1: Ceremonia -->
+        <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
+            <i class="fa-solid fa-church"></i>
+          </div>
+          <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">17:00 HRS</span>
+          <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Ceremonia</h3>
+          <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
+            Intercambio de votos y bendición de argollas matrimoniales.
+          </p>
+        </div>
+
+        <!-- Hito 2: Cóctel de Bienvenida -->
+        <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
+            <i class="fa-solid fa-martini-glass-citrus"></i>
+          </div>
+          <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">18:30 HRS</span>
+          <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Cóctel</h3>
+          <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
+            Brindis de recepción, canapés gourmet y fotos en los jardines.
+          </p>
+        </div>
+
+        <!-- Hito 3: Banquete & Cena -->
+        <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
+            <i class="fa-solid fa-utensils"></i>
+          </div>
+          <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">20:00 HRS</span>
+          <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Banquete</h3>
+          <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
+            Cena especial de tres tiempos para compartir y celebrar en la mesa.
+          </p>
+        </div>
+
+        <!-- Hito 4: Brindis & Vals -->
+        <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
+            <i class="fa-solid fa-champagne-glasses"></i>
+          </div>
+          <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">22:00 HRS</span>
+          <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Vals & Brindis</h3>
+          <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
+            Primer baile de los novios, corte de pastel y palabras de gratitud.
+          </p>
+        </div>
+
+        <!-- Hito 5: Fiesta & Barra Libre -->
+        <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
+            <i class="fa-solid fa-compact-disc"></i>
+          </div>
+          <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">23:00 HRS</span>
+          <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Gran Fiesta</h3>
+          <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
+            Pista de baile encendida, DJ en vivo y celebración hasta la madrugada.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SECCIÓN 4: UBICACIÓN UNIFICADA (Lugar por confirmar) -->
+  <section id="ubicacion" class="py-24 px-5 max-w-4xl mx-auto relative z-20">
+    <div class="text-center mb-16">
+      <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">¿Dónde será el encuentro?</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Lugar de Celebración</h2>
+      <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+      <p class="font-serif italic text-base md:text-lg text-wedding-stoneMuted max-w-lg mx-auto mt-3 font-light">
+        Para mayor comodidad de todos, realizaremos todo en un único recinto.
+      </p>
+    </div>
+
+    <!-- Tarjeta Unificada -->
+    <div class="bg-white rounded-3xl p-8 sm:p-12 border gold-border gold-shadow text-center relative overflow-hidden">
+      <!-- Ornamento de agua de fondo -->
+      <div class="absolute -top-10 -right-10 text-wedding-accent/5 text-9xl pointer-events-none select-none">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+
+      <div class="w-16 h-16 rounded-full bg-wedding-accentLight text-wedding-accent flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold tracking-wider uppercase mb-5">
         <i class="fa-regular fa-clock"></i> Lugar por confirmar
       </div>
 
-      <p class="text-stone-600 max-w-md mx-auto text-sm md:text-base leading-relaxed mb-6">
-        Estamos ultimando los detalles para elegir el espacio perfecto donde celebraremos tanto nuestra ceremonia como el banquete y la fiesta. Muy pronto compartiremos la dirección exacta y el enlace directo de Google Maps.
+      <h3 class="font-serif text-3xl sm:text-4xl text-wedding-stoneDark mb-3">
+        Ceremonia, Recepción & Fiesta en el Mismo Recinto
+      </h3>
+
+      <p class="text-xs sm:text-sm text-wedding-stoneMuted font-light leading-relaxed max-w-xl mx-auto mb-8">
+        Queremos que disfrutes al máximo sin preocuparte por traslados entre la iglesia y la fiesta. Estamos ultimando los detalles del salón y jardines ideales. Con suficiente antelación publicaremos la dirección exacta y el enlace a Google Maps / Waze.
       </p>
 
-      <!-- Cronograma General del Mismo Lugar -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-stone-100 pt-8 mt-4 text-stone-700 text-sm">
-        <div class="p-3 bg-stone-50/70 rounded-xl">
-          <i class="fa-solid fa-rings-wedding text-gold mb-1 block text-lg"></i>
-          <span class="font-medium block text-stone-900">Ceremonia</span>
-          <span class="text-xs text-stone-500">Mismo recinto</span>
+      <!-- Ventajas del mismo lugar -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t gold-border pt-8 max-w-2xl mx-auto text-wedding-stoneDark">
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+          <i class="fa-solid fa-car-side text-wedding-accent text-lg mb-1 block"></i>
+          <strong class="text-xs block">Sin Traslados</strong>
+          <span class="text-[11px] text-wedding-stoneMuted">Llegas y te relajas toda la jornada</span>
         </div>
-        <div class="p-3 bg-stone-50/70 rounded-xl">
-          <i class="fa-solid fa-utensils text-gold mb-1 block text-lg"></i>
-          <span class="font-medium block text-stone-900">Recepción & Cena</span>
-          <span class="text-xs text-stone-500">Sin desplazamientos</span>
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+          <i class="fa-solid fa-square-parking text-wedding-accent text-lg mb-1 block"></i>
+          <strong class="text-xs block">Estacionamiento</strong>
+          <span class="text-[11px] text-wedding-stoneMuted">Comodidad y seguridad para invitados</span>
         </div>
-        <div class="p-3 bg-stone-50/70 rounded-xl">
-          <i class="fa-solid fa-music text-gold mb-1 block text-lg"></i>
-          <span class="font-medium block text-stone-900">Fiesta & Brindis</span>
-          <span class="text-xs text-stone-500">Hasta el final</span>
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+          <i class="fa-solid fa-champagne-glasses text-wedding-accent text-lg mb-1 block"></i>
+          <strong class="text-xs block">Fluidez Total</strong>
+          <span class="text-[11px] text-wedding-stoneMuted">De los votos directo al brindis</span>
         </div>
-      </div>
-
-      <div class="mt-8">
-        <a href="#rsvp" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-stone-900 text-gold-100 hover:bg-gold-dark hover:text-white transition-all text-xs tracking-widest uppercase font-medium shadow-md">
-          <i class="fa-regular fa-calendar-check"></i> Confirmar mi asistencia previa
-        </a>
       </div>
     </div>
   </section>
 
-  <!-- SECCIÓN: CÓDIGO DE VESTIMENTA -->
-  <section class="py-16 px-4 bg-white/50 border-y border-gold/15 relative z-20">
-    <div class="max-w-2xl mx-auto text-center">
-      <div class="w-12 h-12 rounded-full bg-gold-50 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto mb-4 text-lg">
-        <i class="fa-solid fa-person-dress"></i>
+
+  <!-- SECCIÓN 5: CÓDIGO DE VESTIMENTA (DRESS CODE) -->
+  <section id="dresscode" class="py-20 bg-white border-y gold-border relative z-20">
+    <div class="max-w-3xl mx-auto px-5 text-center">
+      <div class="w-12 h-12 mx-auto rounded-full bg-[#FAF7F2] text-wedding-accent flex items-center justify-center text-lg mb-4 border gold-border">
+        <i class="fa-solid fa-vest-patches"></i>
       </div>
-      <h2 class="font-serif text-3xl md:text-4xl text-stone-900 mb-2 uppercase font-light tracking-wide">
-        Código de Vestimenta
-      </h2>
-      <p class="font-serif italic text-xl text-gold-dark mb-4">Elegante / Formal</p>
-      <p class="text-stone-600 text-sm md:text-base leading-relaxed mb-6">
-        Agradecemos que reserves el color blanco y marfil exclusivamente para la novia. Queremos que luzcas fabuloso y disfrutes cómodamente de toda la noche.
+      <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Etiqueta</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Código de Vestimenta</h2>
+      <p class="font-serif italic text-2xl text-wedding-stoneDark mt-2 font-light">Elegante / Formal</p>
+
+      <p class="text-xs sm:text-sm text-wedding-stoneMuted mt-4 leading-relaxed font-light max-w-xl mx-auto">
+        Deseamos que te sientas cómodo, elegante y distinguido para festejar junto a nosotros en una noche inolvidable.
       </p>
-      <div class="flex justify-center items-center gap-3">
-        <span class="w-7 h-7 rounded-full bg-[#1c2230] border border-white shadow" title="Azul Profundo"></span>
-        <span class="w-7 h-7 rounded-full bg-[#3c4a3e] border border-white shadow" title="Verde Salvia / Esmeralda"></span>
-        <span class="w-7 h-7 rounded-full bg-[#8c3a4a] border border-white shadow" title="Borgoña / Terracota"></span>
-        <span class="w-7 h-7 rounded-full bg-[#d8b08c] border border-white shadow" title="Nude / Rose Gold"></span>
-        <span class="w-7 h-7 rounded-full bg-[#2a2a2a] border border-white shadow" title="Negro / Antracita"></span>
+
+      <!-- Paleta de sugerencia -->
+      <div class="mt-8 pt-6 border-t gold-border max-w-md mx-auto">
+        <p class="text-xs uppercase tracking-wider text-wedding-stoneDark font-semibold mb-3">Paleta sugerida:</p>
+        <div class="flex items-center justify-center gap-3">
+          <div class="flex flex-col items-center">
+            <span class="w-9 h-9 rounded-full bg-[#1C2D37] border shadow-sm" title="Azul Marino"></span>
+            <span class="text-[10px] text-wedding-stoneMuted mt-1">Marino</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="w-9 h-9 rounded-full bg-[#3D4C3A] border shadow-sm" title="Verde Esmeralda/Oliva"></span>
+            <span class="text-[10px] text-wedding-stoneMuted mt-1">Oliva</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="w-9 h-9 rounded-full bg-[#8A3B47] border shadow-sm" title="Marsala / Burdeo"></span>
+            <span class="text-[10px] text-wedding-stoneMuted mt-1">Marsala</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="w-9 h-9 rounded-full bg-[#A27B5C] border shadow-sm" title="Caramelo / Dorado"></span>
+            <span class="text-[10px] text-wedding-stoneMuted mt-1">Terracota</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="w-9 h-9 rounded-full bg-[#DBCBB8] border shadow-sm" title="Champagne / Nude"></span>
+            <span class="text-[10px] text-wedding-stoneMuted mt-1">Champagne</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-rose-700 mt-4 italic font-medium">
+          * Les pedimos con amor abstenerse del uso de colores blanco, marfil o tonalidades afines, reservados exclusivamente para la novia.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- SECCIÓN: REGALO / DATOS BANCARIOS -->
-  <section class="py-24 px-4 max-w-3xl mx-auto relative z-20">
-    <div class="text-center mb-12">
-      <span class="font-script text-3xl text-gold block mb-1">Muestra de Afecto</span>
-      <h2 class="font-serif text-4xl text-stone-900 tracking-wide uppercase font-light">
-        Regalo de Bodas
-      </h2>
-      <div class="h-0.5 w-16 bg-gold/50 mx-auto mt-3"></div>
-      <p class="font-serif italic text-base md:text-lg text-stone-600 max-w-md mx-auto mt-4">
-        Tu presencia es nuestro mayor regalo. Sin embargo, si deseas hacernos un presente, te dejamos nuestra cuenta para nuestra luna de miel o lluvia de sobres el día del evento.
+  <!-- SECCIÓN 6: MUESTRA DE AFECTO / REGALO (Datos bancarios y botón de copiado) -->
+  <section id="regalos" class="py-24 px-5 max-w-3xl mx-auto relative z-20">
+    <div class="text-center mb-14">
+      <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Muestra de Afecto</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Mesa de Regalos & Gratitud</h2>
+      <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+      <p class="text-xs sm:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light leading-relaxed">
+        El regalo más valioso e indispensable es tu presencia. Sin embargo, si nace en tu corazón hacernos un obsequio, una colaboración para nuestra luna de miel o nueva etapa nos llenará de inmensa gratitud.
       </p>
     </div>
 
-    <div class="bg-white/90 rounded-2xl p-6 md:p-8 border border-gold/20 shadow-md text-center max-w-xl mx-auto">
-      <i class="fa-solid fa-gift text-gold text-2xl mb-3"></i>
-      <h3 class="font-serif text-xl font-medium text-stone-800 mb-2">Transferencia Bancaria</h3>
-      <p class="text-xs text-stone-500 mb-6">Puedes copiar los datos con un solo clic:</p>
-
-      <div class="bg-stone-50 rounded-xl p-4 text-left font-mono text-xs md:text-sm text-stone-700 border border-stone-200 space-y-1 mb-6 select-all" id="bankDetailsBlock">
-        <p><span class="text-stone-400 font-sans">Banco:</span> Banco Estado / Banco Santander</p>
-        <p><span class="text-stone-400 font-sans">Titular:</span> Yanella & Rodrigo</p>
-        <p><span class="text-stone-400 font-sans">Tipo de Cuenta:</span> Cuenta Corriente / Vista</p>
-        <p><span class="text-stone-400 font-sans">Número de Cuenta:</span> 1234567890</p>
-        <p><span class="text-stone-400 font-sans">RUT / ID:</span> 12.345.678-9</p>
-        <p><span class="text-stone-400 font-sans">Correo:</span> matrimonio.yanella.rodrigo@email.com</p>
+    <div class="bg-white rounded-3xl p-8 border gold-border gold-shadow text-center">
+      <div class="w-14 h-14 mx-auto rounded-full bg-wedding-accentLight text-wedding-accent flex items-center justify-center text-xl mb-4">
+        <i class="fa-solid fa-gift"></i>
       </div>
 
-      <button id="copyBankBtn" class="px-5 py-2.5 rounded-full border border-gold text-gold-dark hover:bg-gold hover:text-white transition-all text-xs tracking-wider uppercase font-semibold flex items-center gap-2 mx-auto">
-        <i class="fa-regular fa-copy"></i> <span>Copiar Datos Bancarios</span>
+      <h3 class="font-serif text-2xl text-wedding-stoneDark mb-2">Transferencia Bancaria</h3>
+      <p class="text-xs text-wedding-stoneMuted mb-6 font-light">Puedes copiar los datos con un solo clic para transferir cómodamente:</p>
+
+      <!-- Cuadro de datos bancarios -->
+      <div class="bg-[#FAF7F2] rounded-2xl p-5 text-left font-mono text-xs text-wedding-stoneDark border gold-border space-y-2 mb-6 select-all max-w-lg mx-auto">
+        <div><span class="text-wedding-stoneMuted font-sans">Banco:</span> <strong>Banco Estado / Banco Santander</strong></div>
+        <div><span class="text-wedding-stoneMuted font-sans">Titulares:</span> <strong>Yanella & Rodrigo</strong></div>
+        <div><span class="text-wedding-stoneMuted font-sans">Tipo de Cuenta:</span> <strong>Cuenta Vista / Corriente</strong></div>
+        <div><span class="text-wedding-stoneMuted font-sans">N° de Cuenta:</span> <strong>1234567890</strong></div>
+        <div><span class="text-wedding-stoneMuted font-sans">RUT / ID:</span> <strong>12.345.678-9</strong></div>
+        <div><span class="text-wedding-stoneMuted font-sans">Email:</span> <strong>boda.yanella.rodrigo@gmail.com</strong></div>
+      </div>
+
+      <!-- Botón Copiar -->
+      <button id="btnCopyBank" class="px-7 py-3 bg-wedding-accent text-white rounded-full text-xs uppercase tracking-[0.18em] font-semibold hover:bg-wedding-accentDark transition-all flex items-center gap-2 mx-auto shadow-md">
+        <i class="fa-regular fa-copy text-sm"></i> <span id="copyBankText">Copiar Datos Bancarios</span>
       </button>
+
+      <p class="text-[11px] text-wedding-stoneMuted mt-5 italic">
+        * También contaremos con un cofre especial de los deseos en la recepción para sobres con felicitaciones.
+      </p>
     </div>
   </section>
 
-  <!-- SECCIÓN: CONFIRMACIÓN RSVP POR WHATSAPP -->
-  <section id="rsvp" class="py-24 px-4 bg-white/70 border-t border-gold/20 relative z-20">
-    <div class="max-w-xl mx-auto text-center">
-      <span class="font-script text-3xl text-gold block mb-1">R.S.V.P.</span>
-      <h2 class="font-serif text-4xl text-stone-900 tracking-wide uppercase font-light mb-2">
-        Confirma tu Asistencia
-      </h2>
-      <p class="font-serif italic text-base text-stone-600 mb-8">
-        Por favor confírmanos antes de la fecha límite para preparar tu lugar con mucho cariño.
-      </p>
 
-      <form id="rsvpForm" class="bg-white p-6 md:p-8 rounded-3xl gold-border-ornament text-left space-y-4 shadow-xl">
+  <!-- SECCIÓN 7: MENSAJES PARA LOS NOVIOS (Formulario elegante con modo anónimo) -->
+  <section id="mensajes" class="py-24 px-5 bg-white border-t gold-border relative z-20">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Palabras del corazón</span>
+        <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Dedicatorias para los Novios</h2>
+        <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+        <p class="text-xs sm:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light">
+          Queremos atesorar cada uno de tus buenos deseos. Puedes firmar con tu nombre o enviarlo de forma anónima.
+        </p>
+      </div>
+
+      <!-- Formulario de Mensaje -->
+      <form id="wishesForm" class="bg-[#FAF7F2] p-6 sm:p-10 rounded-3xl border gold-border gold-shadow space-y-6">
         
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-            Nombre y Apellido *
-          </label>
-          <input type="text" id="guestName" required placeholder="Ej. Camila Pérez" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-              ¿Asistirás? *
-            </label>
-            <select id="attendanceStatus" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm bg-white">
-              <option value="¡Sí, con mucho gusto asistiré!">¡Sí, asistiré!</option>
-              <option value="Lamentablemente no podré asistir">No podré asistir</option>
-            </select>
+        <!-- Toggle Anónimo -->
+        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border gold-border">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-wedding-accentLight text-wedding-accent flex items-center justify-center text-sm">
+              <i class="fa-solid fa-user-secret"></i>
+            </div>
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-wedding-stoneDark block">Publicar de forma Anónima</span>
+              <span class="text-[11px] text-wedding-stoneMuted font-light">Tu nombre no será visible en el mural</span>
+            </div>
           </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="anonCheck" class="sr-only peer">
+            <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wedding-accent"></div>
+          </label>
+        </div>
 
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-              Cantidad de Pases *
+        <!-- Campo de Nombre (Se oculta o deshabilita si es anónimo) -->
+        <div id="authorContainer" class="transition-all duration-300">
+          <label for="wishAuthor" class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
+            Tu Nombre o Firma *
+          </label>
+          <input type="text" id="wishAuthor" placeholder="Ej. Familia Soto Morales / Tu Nombre y Apellido" class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40">
+        </div>
+
+        <!-- Selector de Emoción o Emoji -->
+        <div>
+          <label class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
+            Elige la emoción de tu mensaje
+          </label>
+          <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="💍" checked class="hidden">
+              <span class="text-xl">💍</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Amor</span>
             </label>
-            <select id="guestCount" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm bg-white">
-              <option value="1 persona">1 Persona</option>
-              <option value="2 personas">2 Personas</option>
-              <option value="3 personas">3 Personas</option>
-              <option value="Familia completa">Familia</option>
-            </select>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="🥂" class="hidden">
+              <span class="text-xl">🥂</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Brindis</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="✨" class="hidden">
+              <span class="text-xl">✨</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Magia</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="🎉" class="hidden">
+              <span class="text-xl">🎉</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Fiesta</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="🕊️" class="hidden">
+              <span class="text-xl">🕊️</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Paz</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border gold-border bg-white cursor-pointer hover:bg-wedding-accentLight/50 has-[:checked]:border-wedding-accent has-[:checked]:bg-wedding-accentLight">
+              <input type="radio" name="wishEmoji" value="❤️" class="hidden">
+              <span class="text-xl">❤️</span>
+              <span class="text-[10px] text-wedding-stoneMuted mt-1">Cariño</span>
+            </label>
           </div>
         </div>
 
+        <!-- Campo Mensaje -->
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-            Restricciones Alimentarias / Menú
+          <label for="wishText" class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
+            Tu Mensaje o Dedicatoria *
           </label>
-          <input type="text" id="dietaryReqs" placeholder="Ej. Vegetariano, celíaco, alergias o sin restricciones" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
+          <textarea id="wishText" rows="3" required placeholder="Escribe aquí tus mejores deseos, consejos o palabras de felicidad para Yanella y Rodrigo..." class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40"></textarea>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-            ¿Qué canción no puede faltar en la fiesta? 🎵
-          </label>
-          <input type="text" id="suggestedSong" placeholder="Canción y Artista" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
-            Mensaje o Dedicatoria para los Novios
-          </label>
-          <textarea id="guestWishes" rows="3" placeholder="Escribe unas palabras de cariño..." class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition"></textarea>
-        </div>
-
-        <button type="submit" class="w-full py-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold text-sm tracking-wider uppercase transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-4">
-          <i class="fa-brands fa-whatsapp text-xl"></i> Confirmar vía WhatsApp
+        <!-- Botón Enviar -->
+        <button type="submit" class="w-full py-4 bg-wedding-accent text-white rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-wedding-accentDark transition-all shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane text-sm"></i> Publicar en el Mural
         </button>
-
       </form>
     </div>
   </section>
 
+
+  <!-- SECCIÓN 8: MURAL DE MENSAJES Y FELICITACIONES -->
+  <section id="mural" class="py-24 px-5 max-w-5xl mx-auto relative z-20">
+    <div class="text-center mb-16">
+      <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Recuerdos Vivos</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Mural de Felicitaciones</h2>
+      <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
+      <p class="font-serif italic text-base md:text-lg text-wedding-stoneMuted max-w-lg mx-auto mt-3 font-light">
+        Mensajes cargados de cariño que los novios guardarán por siempre en su corazón.
+      </p>
+    </div>
+
+    <!-- Contenedor dinámico del Mural -->
+    <div id="muralGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Los mensajes precargados y los nuevos se renderizan aquí dinámicamente -->
+    </div>
+  </section>
+
+
   <!-- FOOTER -->
-  <footer class="py-12 text-center relative z-20 border-t border-gold/20">
-    <p class="font-script text-4xl text-gold mb-1">Yanella & Rodrigo</p>
-    <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Gracias por compartir este sueño con nosotros</p>
+  <footer class="py-16 text-center bg-white border-t gold-border relative z-20">
+    <div class="max-w-xl mx-auto px-5">
+      <h3 class="font-script text-4xl sm:text-5xl text-wedding-stoneDark mb-2">
+        Yanella & Rodrigo
+      </h3>
+      <p class="text-xs uppercase tracking-[0.28em] text-wedding-accent font-medium mb-4">
+        #BodaYanellaYRodrigo
+      </p>
+      <div class="w-12 h-px bg-wedding-accent mx-auto mb-5"></div>
+      <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
+        Gracias por acompañarnos y ser parte de nuestra historia.
+      </p>
+    </div>
   </footer>
 
-  <!-- ========================================== -->
-  <!-- JAVASCRIPT: LÓGICA, FECHA Y FUNCIONALIDAD  -->
-  <!-- ========================================== -->
+  <!-- Notificación Toast -->
+  <div id="toast" class="fixed top-6 right-6 z-50 bg-wedding-stoneDark text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs tracking-wider transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-wedding-accent text-base"></i>
+    <span id="toastMessage">Operación realizada</span>
+  </div>
+
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT: CONFIGURACIÓN, CONTADOR, AUDIO & MURAL LOCALSTORAGE   -->
+  <!-- ================================================================= -->
   <script>
     /* ====================================================================
-       CONFIGURACIÓN GENERAL (MODIFICA TU FECHA Y NÚMERO AQUÍ)
+       BLOQUE DE CONFIGURACIÓN GENERAL (MODIFICA TU FECHA FÁCILMENTE AQUÍ)
        ==================================================================== */
-    
-    // 1. MODIFICA AQUÍ LA FECHA Y HORA DEL MATRIMONIO:
-    // Formato: AAAA-MM-DDTHH:MM:SS (Año-Mes-DíaTHora:Minuto:Segundo)
-    const WEDDING_DATE = "2027-03-20T18:00:00"; 
-    
-    // 2. TEXTO VISUAL PARA MOSTRAR EN EL HERO (Ejemplo: "Sábado, 20 de Marzo de 2027"):
-    const DISPLAY_DATE_TEXT = "Sábado, 20 de Marzo de 2027";
 
-    // 3. NÚMERO DE TELÉFONO PARA RECIBIR LAS CONFIRMACIONES EN WHATSAPP:
-    // Incluye código de país sin signo '+' ni espacios (Ej: 56912345678 para Chile)
-    const WHATSAPP_PHONE = "56900000000";
+    // 1. FECHA Y HORA DEL MATRIMONIO (Formato ISO estándar: AAAA-MM-DDTHH:MM:SS)
+    // Ejemplo: "2027-03-20T17:00:00"
+    const WEDDING_DATE = "2027-03-20T17:00:00";
+
+    // 2. TEXTO LEGIBLE QUE SE MOSTRARÁ EN EL BANNER PRINCIPAL (HERO)
+    // Ejemplo: "SÁBADO, 20 DE MARZO DE 2027"
+    const DISPLAY_DATE_TEXT = "SÁBADO, 20 DE MARZO DE 2027";
 
     /* ==================================================================== */
 
-    // Actualizar texto del Hero
-    document.getElementById('heroDateText').innerText = DISPLAY_DATE_TEXT;
+    // Renderizar la fecha en el Hero
+    document.getElementById('heroDateDisplay').textContent = DISPLAY_DATE_TEXT;
+
+    // Toast Notificaciones
+    function showToast(message, icon = "fa-circle-check") {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMessage.textContent = message;
+      toastIcon.className = `fa-solid ${icon} text-wedding-accent text-base`;
+      toast.classList.remove('-translate-y-28', 'opacity-0');
+
+      setTimeout(() => {
+        toast.classList.add('-translate-y-28', 'opacity-0');
+      }, 3400);
+    }
 
     // Cuenta Regresiva
-    function updateCountdown() {
-      const target = new Date(WEDDING_DATE).getTime();
-      const now = new Date().getTime();
-      const diff = target - now;
+    function initCountdown() {
+      function updateTimer() {
+        const target = new Date(WEDDING_DATE).getTime();
+        const now = new Date().getTime();
+        const diff = target - now;
 
-      if (diff <= 0) {
-        document.getElementById('cdDays').innerText = "00";
-        document.getElementById('cdHours').innerText = "00";
-        document.getElementById('cdMins').innerText = "00";
-        document.getElementById('cdSecs').innerText = "00";
-        return;
+        if (diff <= 0) {
+          document.getElementById('cdDays').textContent = '00';
+          document.getElementById('cdHours').textContent = '00';
+          document.getElementById('cdMins').textContent = '00';
+          document.getElementById('cdSecs').textContent = '00';
+          return;
+        }
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('cdDays').textContent = d < 10 ? '0' + d : d;
+        document.getElementById('cdHours').textContent = h < 10 ? '0' + h : h;
+        document.getElementById('cdMins').textContent = m < 10 ? '0' + m : m;
+        document.getElementById('cdSecs').textContent = s < 10 ? '0' + s : s;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-      document.getElementById('cdDays').innerText = days < 10 ? '0' + days : days;
-      document.getElementById('cdHours').innerText = hours < 10 ? '0' + hours : hours;
-      document.getElementById('cdMins').innerText = mins < 10 ? '0' + mins : mins;
-      document.getElementById('cdSecs').innerText = secs < 10 ? '0' + secs : secs;
+      updateTimer();
+      setInterval(updateTimer, 1000);
     }
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
 
-    // Copiar datos bancarios al portapapeles
-    document.getElementById('copyBankBtn').addEventListener('click', function () {
-      const textToCopy = `Datos de Transferencia Matrimonio Yanella & Rodrigo:
+    // Copiar Datos Bancarios
+    document.getElementById('btnCopyBank').addEventListener('click', function() {
+      const textToCopy = 
+`DATOS DE TRANSFERENCIA — BODA YANELLA & RODRIGO
 Banco: Banco Estado / Banco Santander
-Titular: Yanella & Rodrigo
+Titulares: Yanella & Rodrigo
+Tipo de Cuenta: Cuenta Vista / Corriente
+N° de Cuenta: 1234567890
 RUT: 12.345.678-9
-Cuenta: 1234567890
-Correo: matrimonio.yanella.rodrigo@email.com`;
+Email: boda.yanella.rodrigo@gmail.com`;
 
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        const span = this.querySelector('span');
-        const prev = span.innerText;
-        span.innerText = "¡Datos Copiados!";
-        this.classList.add('bg-gold', 'text-white');
-        setTimeout(() => {
-          span.innerText = prev;
-          this.classList.remove('bg-gold', 'text-white');
-        }, 2000);
-      });
-    });
-
-    // Envío de confirmación por WhatsApp
-    document.getElementById('rsvpForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById('guestName').value.trim();
-      const attendance = document.getElementById('attendanceStatus').value;
-      const count = document.getElementById('guestCount').value;
-      const diet = document.getElementById('dietaryReqs').value.trim() || 'Sin observaciones';
-      const song = document.getElementById('suggestedSong').value.trim() || 'Ninguna sugerida';
-      const wishes = document.getElementById('guestWishes').value.trim();
-
-      let msg = `*CONFIRMACIÓN DE ASISTENCIA — BODA YANELLA & RODRIGO*\n\n`;
-      msg += `👤 *Invitado(a):* ${name}\n`;
-      msg += `💌 *Estado:* ${attendance}\n`;
-      msg += `👥 *Pases:* ${count}\n`;
-      msg += `🍽️ *Menú / Restricciones:* ${diet}\n`;
-      msg += `🎶 *Canción sugerida:* ${song}\n`;
-      if (wishes) {
-        msg += `💬 *Dedicatoria:* "${wishes}"\n`;
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("Datos bancarios copiados al portapapeles");
+        const btnText = document.getElementById('copyBankText');
+        const prevText = btnText.textContent;
+        btnText.textContent = "¡Datos Copiados!";
+        setTimeout(() => { btnText.textContent = prevText; }, 2500);
+      } catch (err) {
+        showToast("Copia los datos manualmente", "fa-circle-exclamation");
       }
-
-      const encodedMsg = encodeURIComponent(msg);
-      const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedMsg}`;
-      window.open(url, '_blank');
+      document.body.removeChild(textArea);
     });
 
-    // Animación de Pétalos y Destellos (Canvas)
+    // Menú móvil responsive
+    const btnMobileMenu = document.getElementById('btnMobileMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    btnMobileMenu.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    // Canvas de Pétalos y Destellos
+    let petalsActive = true;
     const canvas = document.getElementById('petalCanvas');
     const ctx = canvas.getContext('2d');
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-    let petalsActive = true;
 
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     });
 
-    const particles = Array.from({ length: 35 }, () => ({
+    const petals = Array.from({ length: 30 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      size: Math.random() * 8 + 4,
-      speedX: Math.random() * 1 - 0.5,
-      speedY: Math.random() * 1.2 + 0.6,
+      size: Math.random() * 8 + 5,
+      speedX: Math.random() * 1.2 - 0.4,
+      speedY: Math.random() * 1.3 + 0.7,
       angle: Math.random() * 360,
-      spin: (Math.random() - 0.5) * 2,
-      opacity: Math.random() * 0.4 + 0.2
+      spin: Math.random() * 1.5 - 0.75,
+      color: Math.random() > 0.4 ? 'rgba(235, 192, 192, 0.45)' : 'rgba(212, 175, 55, 0.35)'
     }));
 
-    function renderParticles() {
+    function drawPetals() {
       if (!petalsActive) return;
       ctx.clearRect(0, 0, width, height);
 
-      particles.forEach(p => {
+      petals.forEach(p => {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.angle * Math.PI) / 180);
-        ctx.fillStyle = `rgba(212, 175, 55, ${p.opacity})`;
         ctx.beginPath();
-        // Forma de pétalo suave
-        ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(p.size / 2, -p.size, p.size * 1.2, -p.size / 3, 0, p.size);
+        ctx.bezierCurveTo(-p.size * 1.2, -p.size / 3, -p.size / 2, -p.size, 0, 0);
+        ctx.fillStyle = p.color;
         ctx.fill();
         ctx.restore();
 
+        p.x += p.speedX;
         p.y += p.speedY;
-        p.x += Math.sin(p.y * 0.01) * 0.5 + p.speedX;
         p.angle += p.spin;
 
         if (p.y > height + 20) {
           p.y = -20;
           p.x = Math.random() * width;
         }
+        if (p.x > width + 20) p.x = -20;
+        if (p.x < -20) p.x = width + 20;
       });
 
-      requestAnimationFrame(renderParticles);
+      requestAnimationFrame(drawPetals);
     }
-    renderParticles();
+    drawPetals();
 
-    document.getElementById('particlesToggle').addEventListener('click', () => {
+    document.getElementById('btnPetalsToggle').addEventListener('click', function() {
       petalsActive = !petalsActive;
-      if (petalsActive) renderParticles();
-      else ctx.clearRect(0, 0, width, height);
+      const icon = document.getElementById('petalsIcon');
+      if (petalsActive) {
+        icon.className = "fa-solid fa-spa text-base";
+        drawPetals();
+        showToast("Pétalos flotantes activados");
+      } else {
+        icon.className = "fa-solid fa-eye-slash text-base";
+        ctx.clearRect(0, 0, width, height);
+        showToast("Pétalos pausados");
+      }
     });
 
-    // Música Ambiental Romántica (Web Audio API - Sin Enlaces Externos Caídos)
+    // Música Ambiental Romántica (Web Audio API - Sin Enlaces Caídos)
     let audioCtx = null;
     let isPlaying = false;
-    let intervalId = null;
+    let musicTimer = null;
 
     const chords = [
-      [261.63, 329.63, 392.00, 493.88], // C maj7
-      [220.00, 261.63, 329.63, 392.00], // A min7
-      [174.61, 220.00, 261.63, 329.63], // F maj7
+      [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      [220.00, 261.63, 329.63, 392.00], // Am7
+      [174.61, 220.00, 261.63, 329.63], // Fmaj7
       [196.00, 246.94, 293.66, 349.23]  // G7
     ];
-    let chordIdx = 0;
+    let chordIndex = 0;
 
     function playArpeggio() {
       if (!isPlaying || !audioCtx) return;
-      const currentChord = chords[chordIdx % chords.length];
-      chordIdx++;
+      const chord = chords[chordIndex % chords.length];
+      chordIndex++;
 
-      currentChord.forEach((freq, i) => {
+      chord.forEach((freq, idx) => {
         setTimeout(() => {
           if (!isPlaying || !audioCtx) return;
           const osc = audioCtx.createOscillator();
@@ -518,35 +906,195 @@ Correo: matrimonio.yanella.rodrigo@email.com`;
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-          gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.05, audioCtx.currentTime + 0.15);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+          gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.035, audioCtx.currentTime + 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
 
           osc.connect(gain);
           gain.connect(audioCtx.destination);
 
           osc.start();
-          osc.stop(audioCtx.currentTime + 2.6);
-        }, i * 320);
+          osc.stop(audioCtx.currentTime + 2.9);
+        }, idx * 280);
       });
     }
 
-    document.getElementById('musicToggle').addEventListener('click', function () {
+    document.getElementById('btnMusicToggle').addEventListener('click', function() {
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
       }
 
-      if (!isPlaying) {
+      if (audioCtx.state === 'suspended') {
         audioCtx.resume();
+      }
+
+      const icon = document.getElementById('musicIcon');
+
+      if (!isPlaying) {
         isPlaying = true;
-        document.getElementById('musicIcon').className = 'fa-solid fa-volume-high text-lg';
+        icon.className = "fa-solid fa-volume-high text-base text-emerald-600";
         playArpeggio();
-        intervalId = setInterval(playArpeggio, 2400);
+        musicTimer = setInterval(playArpeggio, 2500);
+        showToast("Música ambiental iniciada ♫");
       } else {
         isPlaying = false;
-        clearInterval(intervalId);
-        document.getElementById('musicIcon').className = 'fa-solid fa-volume-xmark text-lg';
+        clearInterval(musicTimer);
+        icon.className = "fa-solid fa-volume-xmark text-base";
+        showToast("Música pausada");
       }
+    });
+
+    // =========================================================
+    // GESTIÓN DEL MURAL DE MENSAJES CON LOCALSTORAGE Y ANÓNIMO
+    // =========================================================
+
+    const LOCAL_STORAGE_KEY = 'boda_yanella_rodrigo_wishes';
+
+    // Mensajes iniciales de bienvenida
+    const defaultWishes = [
+      {
+        id: 1,
+        author: "Tía Patricia & Familia",
+        message: "¡Qué inmensa alegría verlos dar este paso tan sagrado! Que la paciencia, el amor incondicional y la ternura los acompañen siempre. Los amamos con todo el corazón.",
+        emoji: "💍",
+        date: "Hace unos días",
+        isAnonymous: false
+      },
+      {
+        id: 2,
+        author: "Amigo de la Universidad",
+        message: "Rodrigo, encontraste a tu compañera ideal. Yanella, bienvenida para siempre al grupo. ¡Prometemos dejarlo absolutamente todo en la pista de baile!",
+        emoji: "🥂",
+        date: "Ayer",
+        isAnonymous: false
+      },
+      {
+        id: 3,
+        author: "De corazón",
+        message: "Les deseo una vida repleta de risas y de complicidad constante. Que en los días soleados celebren y en las tormentas se abracen fuerte. ¡Felicidades infinitas!",
+        emoji: "❤️",
+        date: "Hoy",
+        isAnonymous: true
+      }
+    ];
+
+    function getSavedWishes() {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!stored) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultWishes));
+        return defaultWishes;
+      }
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return defaultWishes;
+      }
+    }
+
+    function renderMural() {
+      const muralGrid = document.getElementById('muralGrid');
+      const wishes = getSavedWishes();
+      muralGrid.innerHTML = '';
+
+      wishes.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-6 rounded-2xl border gold-border postcard-shadow flex flex-col justify-between hover:translate-y-[-2px] transition-transform duration-300 relative overflow-hidden";
+        
+        card.innerHTML = `
+          <!-- Sello / Emoji Postal -->
+          <div class="flex items-center justify-between pb-3 border-b gold-border mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">${item.emoji || '💍'}</span>
+              <div>
+                <h4 class="font-serif text-lg font-semibold text-wedding-stoneDark leading-tight">
+                  ${item.isAnonymous ? 'Anónimo / De corazón' : item.author}
+                </h4>
+                <span class="text-[10px] uppercase tracking-wider text-wedding-stoneMuted">${item.date}</span>
+              </div>
+            </div>
+            <i class="fa-solid fa-stamp text-wedding-accent/25 text-xl"></i>
+          </div>
+
+          <!-- Mensaje -->
+          <p class="text-xs sm:text-sm text-wedding-stoneMuted font-light italic leading-relaxed mb-4">
+            "${item.message}"
+          </p>
+
+          <div class="text-right">
+            <span class="text-[10px] font-mono text-wedding-accent uppercase tracking-widest font-semibold">
+              #YanellaYRodrigo
+            </span>
+          </div>
+        `;
+        muralGrid.appendChild(card);
+      });
+    }
+
+    // Manejar check de anónimo
+    const anonCheck = document.getElementById('anonCheck');
+    const authorContainer = document.getElementById('authorContainer');
+    const wishAuthorInput = document.getElementById('wishAuthor');
+
+    anonCheck.addEventListener('change', function() {
+      if (this.checked) {
+        authorContainer.classList.add('opacity-40', 'pointer-events-none');
+        wishAuthorInput.value = '';
+        wishAuthorInput.placeholder = "Publicando como: Anónimo / De corazón";
+      } else {
+        authorContainer.classList.remove('opacity-40', 'pointer-events-none');
+        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Tu Nombre y Apellido";
+      }
+    });
+
+    // Envío de nuevo mensaje
+    document.getElementById('wishesForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const isAnon = anonCheck.checked;
+      const author = isAnon ? "De corazón" : (wishAuthorInput.value.trim() || "Amigo/a de los Novios");
+      const message = document.getElementById('wishText').value.trim();
+      const selectedEmoji = document.querySelector('input[name="wishEmoji"]:checked')?.value || '💍';
+
+      if (!message) {
+        showToast("Por favor escribe tu mensaje", "fa-circle-exclamation");
+        return;
+      }
+
+      const now = new Date();
+      const dateText = `Hoy, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+      const newWish = {
+        id: Date.now(),
+        author: author,
+        message: message,
+        emoji: selectedEmoji,
+        date: dateText,
+        isAnonymous: isAnon
+      };
+
+      const wishes = getSavedWishes();
+      wishes.unshift(newWish);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(wishes));
+
+      renderMural();
+
+      // Reset form
+      document.getElementById('wishText').value = '';
+      if (!isAnon) {
+        wishAuthorInput.value = '';
+      }
+
+      showToast("¡Tu mensaje ha sido publicado en el mural!");
+
+      // Scroll suave hacia el mural para ver su mensaje
+      document.getElementById('mural').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Inicialización general en DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      initCountdown();
+      renderMural();
     });
   </script>
 </body>
