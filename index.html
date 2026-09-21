@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yanella & Rodrigo — Nuestra Boda</title>
 
-  <!-- Open Graph Meta Tags para compartir en WhatsApp, Telegram y Redes -->
+  <!-- Open Graph Meta Tags para vista previa en WhatsApp, Telegram y Redes Sociales -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Yanella & Rodrigo — Invitación de Nuestra Boda">
-  <meta property="og:description" content="Nos casamos y soñamos con compartir este momento único contigo. Descubre los detalles de nuestra boda y déjanos tus palabras en el mural.">
+  <meta property="og:description" content="Nos casamos y queremos que seas parte de nuestro gran día. Acompáñanos a celebrar el amor.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80">
   <meta name="theme-color" content="#b89358">
 
-  <!-- FontAwesome Icons -->
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Google Fonts: Cormorant Garamond, Great Vibes y Montserrat -->
@@ -35,9 +35,11 @@
             wedding: {
               cream: '#FAF7F2',
               surface: '#FFFFFF',
-              accent: '#B38E5D',      // Dorado suave
+              accent: '#B38E5D',      // Oro fino satinado
               accentDark: '#8F6E3F',
-              accentLight: '#F3EADB',
+              accentLight: '#F5ECE1',
+              brideRose: '#E8A598',   // Tono suave para la novia
+              groomNavy: '#2C3E50',   // Tono distinguido para el novio
               stoneDark: '#2C2825',
               stoneMuted: '#6B655E',
               borderGold: 'rgba(179, 142, 93, 0.28)'
@@ -56,17 +58,11 @@
       overflow-x: hidden;
     }
 
-    /* Textura de papel fino */
+    /* Textura fina de papel artesanal */
     .bg-paper-texture {
       background-color: #FAF7F2;
       background-image: radial-gradient(#B38E5D 0.55px, transparent 0.55px);
       background-size: 26px 26px;
-    }
-
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #8F6E3F 0%, #D4AF37 45%, #B38E5D 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     .gold-border {
@@ -74,10 +70,10 @@
     }
 
     .gold-shadow {
-      box-shadow: 0 14px 35px -12px rgba(179, 142, 93, 0.15);
+      box-shadow: 0 14px 35px -12px rgba(179, 142, 93, 0.16);
     }
 
-    /* Canvas de pétalos */
+    /* Lienzo fijo de pétalos flotantes */
     #petalCanvas {
       position: fixed;
       top: 0;
@@ -88,49 +84,128 @@
       z-index: 15;
     }
 
-    /* Tarjeta postal de mural */
-    .postcard-shadow {
-      box-shadow: 0 8px 24px -6px rgba(44, 40, 37, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    /* Burbujitas flotantes de música */
+    .music-bubble {
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .bubble-hidden {
+      opacity: 0;
+      transform: translateY(18px) scale(0.6);
+      pointer-events: none;
+    }
+
+    .bubble-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Animación de pulso musical cuando está activa */
+    @keyframes musicPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .pulse-playing {
+      animation: musicPulse 2s infinite ease-in-out;
     }
   </style>
 </head>
 
 <body class="bg-paper-texture selection:bg-wedding-accentLight selection:text-wedding-stoneDark relative">
 
-  <!-- Canvas animado de pétalos y destellos dorados -->
+  <!-- Lienzo de pétalos y partículas doradas animadas -->
   <canvas id="petalCanvas"></canvas>
 
+  <!-- =============================================================== -->
+  <!-- CONTROLES FLOTANTES EN ESQUINA INFERIOR DERECHA                -->
+  <!-- =============================================================== -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3.5 select-none">
 
-  <!-- Controles flotantes (Música y Pétalos) -->
-  <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-    <!-- Música Ambiental Web Audio -->
-    <button id="btnMusicToggle" class="w-12 h-12 rounded-full bg-white/95 text-wedding-accent shadow-xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Música romántica ambiental">
-      <i id="musicIcon" class="fa-solid fa-volume-xmark text-base"></i>
-    </button>
-    <!-- Toggle animación de pétalos -->
-    <button id="btnPetalsToggle" class="w-12 h-12 rounded-full bg-white/95 text-wedding-stoneMuted shadow-xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Pausar/Activar pétalos flotantes">
-      <i id="petalsIcon" class="fa-solid fa-spa text-base"></i>
-    </button>
+    <!-- 1. CONTROL DE PISTAS (NOTA MUSICAL + BURBUJITAS FLOTANTES) -->
+    <div class="relative flex flex-col items-center">
+      
+      <!-- Contenedor vertical de burbujitas que emergen hacia arriba -->
+      <div id="musicBubblesContainer" class="flex flex-col items-center gap-2.5 mb-2.5">
+        
+        <!-- Burbujita 1: Tema de la Novia (Yanella) -->
+        <div class="relative group music-bubble bubble-hidden" id="bubbleBrideWrap">
+          <button id="btnBrideTrack" class="w-11 h-11 rounded-full bg-white text-rose-500 shadow-xl border-2 border-rose-200 flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative overflow-hidden" title="Tema de Yanella">
+            <i class="fa-solid fa-heart text-sm"></i>
+            <!-- Indicador de pista seleccionada -->
+            <span id="brideActiveDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white"></span>
+          </button>
+          <!-- Tooltip flotante lateral -->
+          <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-wedding-stoneDark text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+            Tema de Yanella (Novia)
+          </span>
+        </div>
+
+        <!-- Burbujita 2: Tema del Novio (Rodrigo) -->
+        <div class="relative group music-bubble bubble-hidden" id="bubbleGroomWrap">
+          <button id="btnGroomTrack" class="w-11 h-11 rounded-full bg-white text-wedding-accentDark shadow-xl border-2 border-wedding-accent/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative overflow-hidden" title="Tema de Rodrigo">
+            <i class="fa-solid fa-crown text-sm"></i>
+            <!-- Indicador de pista seleccionada -->
+            <span id="groomActiveDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-wedding-accent rounded-full border border-white"></span>
+          </button>
+          <!-- Tooltip flotante lateral -->
+          <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-wedding-stoneDark text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+            Tema de Rodrigo (Novio)
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Botón Principal: Nota Musical (Abre y Cierra las Burbujitas) -->
+      <div class="relative group">
+        <button id="btnMusicNote" class="w-12 h-12 rounded-full bg-white text-wedding-stoneDark shadow-2xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Elegir Tema Musical">
+          <i id="musicNoteIcon" class="fa-solid fa-music text-base transition-transform duration-300"></i>
+        </button>
+        <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-wedding-stoneDark text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+          Canciones de los Novios
+        </span>
+      </div>
+    </div>
+
+    <!-- 2. CONTROL AUTÓNOMO DE SILENCIAR / REANUDAR MÚSICA -->
+    <div class="relative group">
+      <button id="btnMuteToggle" class="w-12 h-12 rounded-full bg-white text-wedding-accent shadow-2xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Silenciar o Reproducir">
+        <i id="muteIcon" class="fa-solid fa-volume-xmark text-base"></i>
+      </button>
+      <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-wedding-stoneDark text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+        Silenciar / Reproducir
+      </span>
+    </div>
+
+    <!-- 3. CONTROL AUTÓNOMO DE PÉTALOS FLOTANTES -->
+    <div class="relative group">
+      <button id="btnPetalsToggle" class="w-12 h-12 rounded-full bg-white text-wedding-stoneMuted shadow-2xl border gold-border flex items-center justify-center hover:bg-wedding-accent hover:text-white transition-all transform hover:scale-105 active:scale-95" title="Pausar o Activar Pétalos">
+        <i id="petalsIcon" class="fa-solid fa-spa text-base"></i>
+      </button>
+      <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-wedding-stoneDark text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+        Animación de Pétalos
+      </span>
+    </div>
+
   </div>
 
-  <!-- Barra de Navegación Suave -->
   <nav class="sticky top-0 z-30 bg-[#FAF7F2]/90 backdrop-blur-md border-b gold-border">
     <div class="max-w-5xl mx-auto px-5 py-3.5 flex items-center justify-between">
       <a href="#hero" class="font-script text-2xl md:text-3xl text-wedding-stoneDark hover:text-wedding-accent transition-colors">
         Yanella & Rodrigo
       </a>
 
-      <!-- Enlaces Escritorio -->
+      <!-- Menú Escritorio -->
       <div class="hidden md:flex items-center space-x-6 text-[11px] uppercase tracking-[0.2em] font-medium text-wedding-stoneMuted">
         <a href="#historia" class="hover:text-wedding-accent transition-colors">Nuestra Historia</a>
         <a href="#itinerario" class="hover:text-wedding-accent transition-colors">Itinerario</a>
         <a href="#ubicacion" class="hover:text-wedding-accent transition-colors">Ubicación</a>
         <a href="#dresscode" class="hover:text-wedding-accent transition-colors">Dress Code</a>
         <a href="#regalos" class="hover:text-wedding-accent transition-colors">Regalos</a>
-        <a href="#mural" class="px-4 py-2 rounded-full border gold-border text-wedding-accent hover:bg-wedding-accent hover:text-white transition-all font-semibold">Dejar Mensaje</a>
+        <a href="#mensajes" class="px-4 py-2 rounded-full border gold-border text-wedding-accent hover:bg-wedding-accent hover:text-white transition-all font-semibold">Dejar Mensaje</a>
       </div>
 
-      <!-- Menú Móvil Botón -->
+      <!-- Botón Menú Móvil -->
       <button id="btnMobileMenu" class="md:hidden text-wedding-stoneDark p-1.5 focus:outline-none" aria-label="Abrir Menú">
         <i class="fa-solid fa-bars text-xl"></i>
       </button>
@@ -143,14 +218,15 @@
       <a href="#ubicacion" class="mobile-nav-link py-1">Ubicación</a>
       <a href="#dresscode" class="mobile-nav-link py-1">Dress Code</a>
       <a href="#regalos" class="mobile-nav-link py-1">Regalos</a>
-      <a href="#mural" class="mobile-nav-link py-2 bg-wedding-accent text-white rounded-full font-semibold">Dejar Mensaje</a>
+      <a href="#mensajes" class="mobile-nav-link py-2 bg-wedding-accent text-white rounded-full font-semibold">Dejar Mensaje</a>
     </div>
   </nav>
 
-
-  <!-- SECCIÓN 1: HERO PRINCIPAL -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 1: HERO PRINCIPAL                                       -->
+  <!-- =============================================================== -->
   <header id="hero" class="relative min-h-[92vh] flex items-center justify-center text-center px-4 pt-16 pb-20 overflow-hidden">
-    <!-- Círculos decorativos sutiles -->
+    <!-- Círculos dorados decorativos de fondo -->
     <div class="absolute w-96 h-96 rounded-full border border-wedding-accent/15 -top-20 -left-20 pointer-events-none"></div>
     <div class="absolute w-[500px] h-[500px] rounded-full border border-wedding-accent/10 -bottom-32 -right-32 pointer-events-none"></div>
 
@@ -170,8 +246,8 @@
         Yanella <span class="font-script not-italic text-5xl sm:text-6xl md:text-7xl text-wedding-accent block sm:inline my-1 sm:my-0">&</span> Rodrigo
       </h1>
 
-      <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-wedding-stoneMuted max-w-xl mx-auto mt-4 mb-8 font-light">
-        "El amor no consiste en mirarse el uno al otro, sino en mirar juntos en la misma dirección."
+      <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-wedding-stoneMuted max-w-xl mx-auto mt-4 mb-8 font-light leading-relaxed">
+        «El amor no consiste en mirarse el uno al otro, sino en mirar juntos en la misma dirección.»
       </p>
 
       <!-- Banner de Fecha Dinámica -->
@@ -185,33 +261,34 @@
 
       <!-- Cuenta Regresiva Viva -->
       <div class="grid grid-cols-4 gap-3 sm:gap-6 max-w-md mx-auto mb-10">
-        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+        <div class="bg-white/85 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
           <span id="cdDays" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
           <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Días</span>
         </div>
-        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+        <div class="bg-white/85 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
           <span id="cdHours" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
           <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Horas</span>
         </div>
-        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+        <div class="bg-white/85 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
           <span id="cdMins" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-stoneDark">00</span>
           <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Min</span>
         </div>
-        <div class="bg-white/80 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
+        <div class="bg-white/85 p-3 sm:p-4 rounded-2xl border gold-border gold-shadow backdrop-blur-sm">
           <span id="cdSecs" class="block font-serif text-2xl sm:text-4xl font-semibold text-wedding-accent">00</span>
           <span class="text-[10px] sm:text-xs uppercase tracking-wider text-wedding-stoneMuted font-medium">Seg</span>
         </div>
       </div>
 
-      <!-- Botón de desplazamiento directo al mural -->
-      <a href="#mural" class="inline-flex items-center gap-2 px-8 py-3.5 bg-wedding-accent text-white text-xs uppercase tracking-[0.2em] font-medium rounded-full shadow-md hover:bg-wedding-accentDark hover:shadow-lg transition-all">
-        <i class="fa-regular fa-comment-dots text-sm"></i> Dejar un Mensaje en el Mural
+      <!-- Botón hacia el mural -->
+      <a href="#mensajes" class="inline-flex items-center gap-2 px-8 py-3.5 bg-wedding-accent text-white text-xs uppercase tracking-[0.2em] font-medium rounded-full shadow-md hover:bg-wedding-accentDark hover:shadow-lg transition-all">
+        <i class="fa-regular fa-comment-dots text-sm"></i> Dejar un Mensaje a los Novios
       </a>
     </div>
   </header>
 
-
-  <!-- SECCIÓN 2: NUESTRA HISTORIA (Línea de tiempo con imágenes) -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 2: NUESTRA HISTORIA                                     -->
+  <!-- =============================================================== -->
   <section id="historia" class="py-24 px-5 max-w-5xl mx-auto relative z-20">
     <div class="text-center mb-16">
       <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">El camino que recorrimos</span>
@@ -222,27 +299,24 @@
       </p>
     </div>
 
-    <!-- Timeline Wrapper -->
+    <!-- Timeline en Pantallas Medianas / Grandes -->
     <div class="relative space-y-16 sm:space-y-24 before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:w-px before:bg-wedding-accent/30 hidden sm:block">
 
-      <!-- Hito 1: Cómo nos conocimos -->
+      <!-- Hito 1: El Comienzo -->
       <div class="flex items-center justify-between">
-        <!-- Texto Izquierda -->
         <div class="w-5/12 text-right pr-8">
           <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">El Comienzo</span>
           <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">Una Mirada, Una Conversación</h3>
           <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
-            Todo empezó con una charla espontánea que parecía no tener final. Entre risas y confidencias, descubrimos que compartíamos los mismos sueños y una complicidad única que creció día tras día.
+            Todo empezó con una charla espontánea que parecía no tener final. Entre risas sinceras descubrimos que compartíamos los mismos sueños y una complicidad que creció día a día.
           </p>
-          <span class="font-serif italic text-xs text-wedding-accent">"Supimos que algo hermoso nacía entre los dos."</span>
+          <span class="font-serif italic text-xs text-wedding-accent">«Supimos que algo hermoso nacía entre los dos.»</span>
         </div>
 
-        <!-- Círculo Central -->
         <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
           <i class="fa-solid fa-mug-saucer"></i>
         </div>
 
-        <!-- Imagen Derecha -->
         <div class="w-5/12 pl-8">
           <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
             <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="Primer encuentro de Yanella y Rodrigo" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
@@ -250,49 +324,43 @@
         </div>
       </div>
 
-      <!-- Hito 2: Aventuras juntos -->
+      <!-- Hito 2: Viajes y Aventuras -->
       <div class="flex items-center justify-between">
-        <!-- Imagen Izquierda -->
         <div class="w-5/12 text-right pr-8">
           <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
-            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80" alt="Viajes y aventuras juntos" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80" alt="Aventuras y viajes juntos" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
           </div>
         </div>
 
-        <!-- Círculo Central -->
         <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
           <i class="fa-solid fa-plane-departure"></i>
         </div>
 
-        <!-- Texto Derecha -->
         <div class="w-5/12 pl-8">
           <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">Creciendo Juntos</span>
           <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">Incontables Aventuras & Viajes</h3>
           <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
-            Recorrimos ciudades, atardeceres frente al mar y nuevos senderos. En cada viaje reafirmamos que cualquier lugar del mundo se convierte en hogar si estamos de la mano el uno con el otro.
+            Recorrimos ciudades, atardeceres frente al mar y nuevos senderos. En cada aventura confirmamos que cualquier rincón del mundo es hogar cuando estamos tomados de la mano.
           </p>
-          <span class="font-serif italic text-xs text-wedding-accent">"El mejor equipo ante cualquier desafío de la vida."</span>
+          <span class="font-serif italic text-xs text-wedding-accent">«El mejor equipo ante cualquier desafío.»</span>
         </div>
       </div>
 
       <!-- Hito 3: La Propuesta -->
       <div class="flex items-center justify-between">
-        <!-- Texto Izquierda -->
         <div class="w-5/12 text-right pr-8">
           <span class="text-[11px] uppercase tracking-[0.25em] text-wedding-accent font-semibold">El Compromiso</span>
           <h3 class="font-serif text-2xl md:text-3xl text-wedding-stoneDark mt-1 mb-2">El Gran "¡Sí, Quiero!"</h3>
           <p class="text-xs md:text-sm text-wedding-stoneMuted font-light leading-relaxed mb-3">
-            Bajo una atmósfera mágica e irrepetible, llegó la pregunta que selló nuestro destino. Con lágrimas de felicidad y el corazón desbordado de emoción, dijimos que sí a una vida entera juntos.
+            Bajo una atmósfera mágica e inolvidable, llegó la pregunta que selló nuestro destino. Con el corazón rebosante de ilusión, dimos el paso definitivo hacia nuestro futuro compartido.
           </p>
-          <span class="font-serif italic text-xs text-wedding-accent">"Y hoy queremos que nos acompañes a celebrar este amor."</span>
+          <span class="font-serif italic text-xs text-wedding-accent">«Y hoy queremos que celebres este sueño con nosotros.»</span>
         </div>
 
-        <!-- Círculo Central -->
         <div class="w-10 h-10 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center z-10 shadow-md text-wedding-accent text-sm">
           <i class="fa-solid fa-ring"></i>
         </div>
 
-        <!-- Imagen Derecha -->
         <div class="w-5/12 pl-8">
           <div class="overflow-hidden rounded-2xl gold-border gold-shadow group">
             <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" alt="La propuesta de matrimonio" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
@@ -302,9 +370,8 @@
 
     </div>
 
-    <!-- Timeline en móviles (Layout apilado vertical) -->
+    <!-- Timeline Adaptada a Móviles -->
     <div class="sm:hidden space-y-12 pl-6 border-l-2 border-wedding-accent/30 relative">
-      <!-- Card Móvil 1 -->
       <div class="relative space-y-3">
         <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
           <i class="fa-solid fa-mug-saucer"></i>
@@ -313,40 +380,39 @@
         <h3 class="font-serif text-2xl text-wedding-stoneDark">Una Mirada, Una Conversación</h3>
         <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="Primer encuentro" class="w-full h-44 object-cover rounded-xl border gold-border">
         <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
-          Una charla espontánea llena de risas que rápidamente se convirtió en un amor sólido y sincero.
+          Una conversación llena de risas que rápidamente se transformó en un amor sólido y sincero.
         </p>
       </div>
 
-      <!-- Card Móvil 2 -->
       <div class="relative space-y-3">
         <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
           <i class="fa-solid fa-plane-departure"></i>
         </span>
         <span class="text-[10px] uppercase tracking-widest text-wedding-accent font-semibold">Creciendo Juntos</span>
         <h3 class="font-serif text-2xl text-wedding-stoneDark">Incontables Aventuras</h3>
-        <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="Aventuras de Yanella y Rodrigo" class="w-full h-44 object-cover rounded-xl border gold-border">
+        <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=600&q=80" alt="Viajes y anécdotas" class="w-full h-44 object-cover rounded-xl border gold-border">
         <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
           Compañeros de viaje y de vida. Cada paso afianzó la certeza de que somos el mejor equipo.
         </p>
       </div>
 
-      <!-- Card Móvil 3 -->
       <div class="relative space-y-3">
         <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-white border-2 border-wedding-accent flex items-center justify-center text-[10px] text-wedding-accent">
           <i class="fa-solid fa-ring"></i>
         </span>
         <span class="text-[10px] uppercase tracking-widest text-wedding-accent font-semibold">El Compromiso</span>
         <h3 class="font-serif text-2xl text-wedding-stoneDark">El "¡Sí, Quiero!"</h3>
-        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="La propuesta" class="w-full h-44 object-cover rounded-xl border gold-border">
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="Propuesta de matrimonio" class="w-full h-44 object-cover rounded-xl border gold-border">
         <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
-          Con el corazón acelerado prometimos caminar juntos para siempre. ¡Bienvenidos a celebrar nuestro gran día!
+          Prometimos caminar juntos para siempre. ¡Bienvenidos a celebrar nuestro gran día!
         </p>
       </div>
     </div>
   </section>
 
-
-  <!-- SECCIÓN 3: ITINERARIO DEL GRAN DÍA -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 3: ITINERARIO DEL GRAN DÍA                              -->
+  <!-- =============================================================== -->
   <section id="itinerario" class="py-20 bg-white border-y gold-border relative z-20">
     <div class="max-w-5xl mx-auto px-5">
       <div class="text-center mb-16">
@@ -354,14 +420,14 @@
         <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Itinerario del Evento</h2>
         <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
         <p class="text-xs md:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light">
-          Un recorrido pensado para disfrutar cada instante junto a las personas que más queremos.
+          Un recorrido diseñado para disfrutar cada instante junto a las personas que más queremos.
         </p>
       </div>
 
-      <!-- Cuadrícula de Horarios e Hitos -->
+      <!-- Cuadrícula de 5 Hitos -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         
-        <!-- Hito 1: Ceremonia -->
+        <!-- Hito 1 -->
         <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
           <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
             <i class="fa-solid fa-church"></i>
@@ -369,11 +435,11 @@
           <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">17:00 HRS</span>
           <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Ceremonia</h3>
           <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
-            Intercambio de votos y bendición de argollas matrimoniales.
+            Intercambio de votos y bendición de argollas.
           </p>
         </div>
 
-        <!-- Hito 2: Cóctel de Bienvenida -->
+        <!-- Hito 2 -->
         <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
           <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
             <i class="fa-solid fa-martini-glass-citrus"></i>
@@ -381,11 +447,11 @@
           <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">18:30 HRS</span>
           <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Cóctel</h3>
           <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
-            Brindis de recepción, canapés gourmet y fotos en los jardines.
+            Brindis de recepción, canapés y fotos grupales.
           </p>
         </div>
 
-        <!-- Hito 3: Banquete & Cena -->
+        <!-- Hito 3 -->
         <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
           <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
             <i class="fa-solid fa-utensils"></i>
@@ -393,11 +459,11 @@
           <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">20:00 HRS</span>
           <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Banquete</h3>
           <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
-            Cena especial de tres tiempos para compartir y celebrar en la mesa.
+            Cena especial de gala para compartir en la mesa.
           </p>
         </div>
 
-        <!-- Hito 4: Brindis & Vals -->
+        <!-- Hito 4 -->
         <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
           <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
             <i class="fa-solid fa-champagne-glasses"></i>
@@ -405,11 +471,11 @@
           <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">22:00 HRS</span>
           <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Vals & Brindis</h3>
           <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
-            Primer baile de los novios, corte de pastel y palabras de gratitud.
+            Primer baile nupcial y corte del pastel.
           </p>
         </div>
 
-        <!-- Hito 5: Fiesta & Barra Libre -->
+        <!-- Hito 5 -->
         <div class="bg-[#FAF7F2] p-6 rounded-2xl border gold-border text-center hover:shadow-md transition-shadow">
           <div class="w-12 h-12 mx-auto rounded-full bg-white flex items-center justify-center text-wedding-accent text-lg shadow-inner mb-3">
             <i class="fa-solid fa-compact-disc"></i>
@@ -417,7 +483,7 @@
           <span class="text-xs font-semibold text-wedding-accent tracking-wider block mb-1">23:00 HRS</span>
           <h3 class="font-serif text-xl text-wedding-stoneDark font-medium mb-1">Gran Fiesta</h3>
           <p class="text-[11px] text-wedding-stoneMuted font-light leading-relaxed">
-            Pista de baile encendida, DJ en vivo y celebración hasta la madrugada.
+            Pista de baile encendida y música hasta el amanecer.
           </p>
         </div>
 
@@ -425,25 +491,21 @@
     </div>
   </section>
 
-
-  <!-- SECCIÓN 4: UBICACIÓN UNIFICADA (Lugar por confirmar) -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 4: LUGAR DEL EVENTO (UNIFICADO EN UN MISMO RECINTO)     -->
+  <!-- =============================================================== -->
   <section id="ubicacion" class="py-24 px-5 max-w-4xl mx-auto relative z-20">
     <div class="text-center mb-16">
       <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">¿Dónde será el encuentro?</span>
       <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Lugar de Celebración</h2>
       <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
       <p class="font-serif italic text-base md:text-lg text-wedding-stoneMuted max-w-lg mx-auto mt-3 font-light">
-        Para mayor comodidad de todos, realizaremos todo en un único recinto.
+        Para que todos disfrutemos cómodamente sin traslados, realizaremos todo en un único recinto.
       </p>
     </div>
 
     <!-- Tarjeta Unificada -->
     <div class="bg-white rounded-3xl p-8 sm:p-12 border gold-border gold-shadow text-center relative overflow-hidden">
-      <!-- Ornamento de agua de fondo -->
-      <div class="absolute -top-10 -right-10 text-wedding-accent/5 text-9xl pointer-events-none select-none">
-        <i class="fa-solid fa-map-location-dot"></i>
-      </div>
-
       <div class="w-16 h-16 rounded-full bg-wedding-accentLight text-wedding-accent flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
         <i class="fa-solid fa-location-dot"></i>
       </div>
@@ -457,32 +519,32 @@
       </h3>
 
       <p class="text-xs sm:text-sm text-wedding-stoneMuted font-light leading-relaxed max-w-xl mx-auto mb-8">
-        Queremos que disfrutes al máximo sin preocuparte por traslados entre la iglesia y la fiesta. Estamos ultimando los detalles del salón y jardines ideales. Con suficiente antelación publicaremos la dirección exacta y el enlace a Google Maps / Waze.
+        Estamos seleccionando el espacio perfecto con hermosos jardines y salones. Muy pronto compartiremos aquí la dirección detallada junto a los accesos directos a Google Maps y Waze.
       </p>
 
-      <!-- Ventajas del mismo lugar -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t gold-border pt-8 max-w-2xl mx-auto text-wedding-stoneDark">
-        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+        <div class="p-3.5 bg-[#FAF7F2] rounded-xl border gold-border">
           <i class="fa-solid fa-car-side text-wedding-accent text-lg mb-1 block"></i>
           <strong class="text-xs block">Sin Traslados</strong>
-          <span class="text-[11px] text-wedding-stoneMuted">Llegas y te relajas toda la jornada</span>
+          <span class="text-[11px] text-wedding-stoneMuted">Llegas y disfrutas toda la velada</span>
         </div>
-        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+        <div class="p-3.5 bg-[#FAF7F2] rounded-xl border gold-border">
           <i class="fa-solid fa-square-parking text-wedding-accent text-lg mb-1 block"></i>
           <strong class="text-xs block">Estacionamiento</strong>
-          <span class="text-[11px] text-wedding-stoneMuted">Comodidad y seguridad para invitados</span>
+          <span class="text-[11px] text-wedding-stoneMuted">Comodidad y seguridad</span>
         </div>
-        <div class="p-3 bg-[#FAF7F2] rounded-xl border gold-border">
+        <div class="p-3.5 bg-[#FAF7F2] rounded-xl border gold-border">
           <i class="fa-solid fa-champagne-glasses text-wedding-accent text-lg mb-1 block"></i>
-          <strong class="text-xs block">Fluidez Total</strong>
+          <strong class="text-xs block">Continuidad Total</strong>
           <span class="text-[11px] text-wedding-stoneMuted">De los votos directo al brindis</span>
         </div>
       </div>
     </div>
   </section>
 
-
-  <!-- SECCIÓN 5: CÓDIGO DE VESTIMENTA (DRESS CODE) -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 5: CÓDIGO DE VESTIMENTA (DRESS CODE)                    -->
+  <!-- =============================================================== -->
   <section id="dresscode" class="py-20 bg-white border-y gold-border relative z-20">
     <div class="max-w-3xl mx-auto px-5 text-center">
       <div class="w-12 h-12 mx-auto rounded-full bg-[#FAF7F2] text-wedding-accent flex items-center justify-center text-lg mb-4 border gold-border">
@@ -493,49 +555,50 @@
       <p class="font-serif italic text-2xl text-wedding-stoneDark mt-2 font-light">Elegante / Formal</p>
 
       <p class="text-xs sm:text-sm text-wedding-stoneMuted mt-4 leading-relaxed font-light max-w-xl mx-auto">
-        Deseamos que te sientas cómodo, elegante y distinguido para festejar junto a nosotros en una noche inolvidable.
+        Deseamos que te sientas elegante, radiante y cómodo para celebrar juntos una noche inolvidable.
       </p>
 
-      <!-- Paleta de sugerencia -->
       <div class="mt-8 pt-6 border-t gold-border max-w-md mx-auto">
         <p class="text-xs uppercase tracking-wider text-wedding-stoneDark font-semibold mb-3">Paleta sugerida:</p>
         <div class="flex items-center justify-center gap-3">
           <div class="flex flex-col items-center">
-            <span class="w-9 h-9 rounded-full bg-[#1C2D37] border shadow-sm" title="Azul Marino"></span>
+            <span class="w-8 h-8 rounded-full bg-[#1C2D37] border shadow-sm" title="Azul Marino"></span>
             <span class="text-[10px] text-wedding-stoneMuted mt-1">Marino</span>
           </div>
           <div class="flex flex-col items-center">
-            <span class="w-9 h-9 rounded-full bg-[#3D4C3A] border shadow-sm" title="Verde Esmeralda/Oliva"></span>
+            <span class="w-8 h-8 rounded-full bg-[#3D4C3A] border shadow-sm" title="Verde Salvia/Oliva"></span>
             <span class="text-[10px] text-wedding-stoneMuted mt-1">Oliva</span>
           </div>
           <div class="flex flex-col items-center">
-            <span class="w-9 h-9 rounded-full bg-[#8A3B47] border shadow-sm" title="Marsala / Burdeo"></span>
+            <span class="w-8 h-8 rounded-full bg-[#8A3B47] border shadow-sm" title="Marsala / Burdeo"></span>
             <span class="text-[10px] text-wedding-stoneMuted mt-1">Marsala</span>
           </div>
           <div class="flex flex-col items-center">
-            <span class="w-9 h-9 rounded-full bg-[#A27B5C] border shadow-sm" title="Caramelo / Dorado"></span>
+            <span class="w-8 h-8 rounded-full bg-[#A27B5C] border shadow-sm" title="Terracota / Oro"></span>
             <span class="text-[10px] text-wedding-stoneMuted mt-1">Terracota</span>
           </div>
           <div class="flex flex-col items-center">
-            <span class="w-9 h-9 rounded-full bg-[#DBCBB8] border shadow-sm" title="Champagne / Nude"></span>
+            <span class="w-8 h-8 rounded-full bg-[#DBCBB8] border shadow-sm" title="Champagne / Nude"></span>
             <span class="text-[10px] text-wedding-stoneMuted mt-1">Champagne</span>
           </div>
         </div>
-        <p class="text-[11px] text-rose-700 mt-4 italic font-medium">
-          * Les pedimos con amor abstenerse del uso de colores blanco, marfil o tonalidades afines, reservados exclusivamente para la novia.
+        <p class="text-[11px] text-rose-700 mt-5 italic font-medium">
+          * Les pedimos con amor abstenerse de usar colores blanco, marfil o tonalidades afines, reservados exclusivamente para la novia.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- SECCIÓN 6: MUESTRA DE AFECTO / REGALO (Datos bancarios y botón de copiado) -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 6: REGALOS / TRANSFERENCIA BANCARIA                     -->
+  <!-- =============================================================== -->
   <section id="regalos" class="py-24 px-5 max-w-3xl mx-auto relative z-20">
     <div class="text-center mb-14">
       <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Muestra de Afecto</span>
       <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Mesa de Regalos & Gratitud</h2>
       <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
       <p class="text-xs sm:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light leading-relaxed">
-        El regalo más valioso e indispensable es tu presencia. Sin embargo, si nace en tu corazón hacernos un obsequio, una colaboración para nuestra luna de miel o nueva etapa nos llenará de inmensa gratitud.
+        El regalo más valioso es tu presencia y tu cariño. Si deseas tener un detalle adicional, una contribución para nuestra luna de miel y nuevo hogar nos llenará de gratitud.
       </p>
     </div>
 
@@ -547,7 +610,7 @@
       <h3 class="font-serif text-2xl text-wedding-stoneDark mb-2">Transferencia Bancaria</h3>
       <p class="text-xs text-wedding-stoneMuted mb-6 font-light">Puedes copiar los datos con un solo clic para transferir cómodamente:</p>
 
-      <!-- Cuadro de datos bancarios -->
+      <!-- Cuadro de datos bancarios para copiar -->
       <div class="bg-[#FAF7F2] rounded-2xl p-5 text-left font-mono text-xs text-wedding-stoneDark border gold-border space-y-2 mb-6 select-all max-w-lg mx-auto">
         <div><span class="text-wedding-stoneMuted font-sans">Banco:</span> <strong>Banco Estado / Banco Santander</strong></div>
         <div><span class="text-wedding-stoneMuted font-sans">Titulares:</span> <strong>Yanella & Rodrigo</strong></div>
@@ -557,19 +620,19 @@
         <div><span class="text-wedding-stoneMuted font-sans">Email:</span> <strong>boda.yanella.rodrigo@gmail.com</strong></div>
       </div>
 
-      <!-- Botón Copiar -->
       <button id="btnCopyBank" class="px-7 py-3 bg-wedding-accent text-white rounded-full text-xs uppercase tracking-[0.18em] font-semibold hover:bg-wedding-accentDark transition-all flex items-center gap-2 mx-auto shadow-md">
         <i class="fa-regular fa-copy text-sm"></i> <span id="copyBankText">Copiar Datos Bancarios</span>
       </button>
 
       <p class="text-[11px] text-wedding-stoneMuted mt-5 italic">
-        * También contaremos con un cofre especial de los deseos en la recepción para sobres con felicitaciones.
+        * También dispondremos de un cofre para sobres con dedicatorias el día del evento.
       </p>
     </div>
   </section>
 
-
-  <!-- SECCIÓN 7: MENSAJES PARA LOS NOVIOS (Formulario elegante con modo anónimo) -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 7: FORMULARIO DE DEDICATORIAS (CON MODO ANÓNIMO)       -->
+  <!-- =============================================================== -->
   <section id="mensajes" class="py-24 px-5 bg-white border-t gold-border relative z-20">
     <div class="max-w-3xl mx-auto">
       <div class="text-center mb-12">
@@ -577,11 +640,10 @@
         <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Dedicatorias para los Novios</h2>
         <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
         <p class="text-xs sm:text-sm text-wedding-stoneMuted max-w-md mx-auto mt-3 font-light">
-          Queremos atesorar cada uno de tus buenos deseos. Puedes firmar con tu nombre o enviarlo de forma anónima.
+          Queremos atesorar cada uno de tus buenos deseos. Puedes firmar con tu nombre o publicarlo de forma anónima.
         </p>
       </div>
 
-      <!-- Formulario de Mensaje -->
       <form id="wishesForm" class="bg-[#FAF7F2] p-6 sm:p-10 rounded-3xl border gold-border gold-shadow space-y-6">
         
         <!-- Toggle Anónimo -->
@@ -601,15 +663,15 @@
           </label>
         </div>
 
-        <!-- Campo de Nombre (Se oculta o deshabilita si es anónimo) -->
+        <!-- Campo Nombre / Firma -->
         <div id="authorContainer" class="transition-all duration-300">
           <label for="wishAuthor" class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
-            Tu Nombre o Firma *
+            Tu Nombre o Familia *
           </label>
-          <input type="text" id="wishAuthor" placeholder="Ej. Familia Soto Morales / Tu Nombre y Apellido" class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40">
+          <input type="text" id="wishAuthor" placeholder="Ej. Familia Soto Morales / Camila Pérez" class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40">
         </div>
 
-        <!-- Selector de Emoción o Emoji -->
+        <!-- Selector de Emoción -->
         <div>
           <label class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
             Elige la emoción de tu mensaje
@@ -648,15 +710,14 @@
           </div>
         </div>
 
-        <!-- Campo Mensaje -->
+        <!-- Área de Texto del Mensaje -->
         <div>
           <label for="wishText" class="block text-xs uppercase tracking-wider font-semibold text-wedding-stoneDark mb-2">
             Tu Mensaje o Dedicatoria *
           </label>
-          <textarea id="wishText" rows="3" required placeholder="Escribe aquí tus mejores deseos, consejos o palabras de felicidad para Yanella y Rodrigo..." class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40"></textarea>
+          <textarea id="wishText" rows="3" required placeholder="Escribe aquí tus palabras de felicidad para Yanella y Rodrigo..." class="w-full px-4 py-3 rounded-xl border gold-border bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-wedding-accent/40"></textarea>
         </div>
 
-        <!-- Botón Enviar -->
         <button type="submit" class="w-full py-4 bg-wedding-accent text-white rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-wedding-accentDark transition-all shadow-md flex items-center justify-center gap-2">
           <i class="fa-solid fa-paper-plane text-sm"></i> Publicar en el Mural
         </button>
@@ -664,26 +725,23 @@
     </div>
   </section>
 
-
-  <!-- SECCIÓN 8: MURAL DE MENSAJES Y FELICITACIONES -->
+  <!-- =============================================================== -->
+  <!-- SECCIÓN 8: MURAL DE FELICITACIONES                              -->
+  <!-- =============================================================== -->
   <section id="mural" class="py-24 px-5 max-w-5xl mx-auto relative z-20">
     <div class="text-center mb-16">
       <span class="text-xs uppercase tracking-[0.3em] text-wedding-accent font-semibold">Recuerdos Vivos</span>
       <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-wedding-stoneDark font-normal">Mural de Felicitaciones</h2>
       <div class="w-16 h-px bg-wedding-accent mx-auto mt-4"></div>
       <p class="font-serif italic text-base md:text-lg text-wedding-stoneMuted max-w-lg mx-auto mt-3 font-light">
-        Mensajes cargados de cariño que los novios guardarán por siempre en su corazón.
+        Mensajes cargados de cariño que los novios guardarán por siempre en su memoria.
       </p>
     </div>
 
-    <!-- Contenedor dinámico del Mural -->
-    <div id="muralGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Los mensajes precargados y los nuevos se renderizan aquí dinámicamente -->
-    </div>
+    <!-- Contenedor dinámico del Mural con tarjetas tipo postal -->
+    <div id="muralGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </section>
 
-
-  <!-- FOOTER -->
   <footer class="py-16 text-center bg-white border-t gold-border relative z-20">
     <div class="max-w-xl mx-auto px-5">
       <h3 class="font-script text-4xl sm:text-5xl text-wedding-stoneDark mb-2">
@@ -694,40 +752,51 @@
       </p>
       <div class="w-12 h-px bg-wedding-accent mx-auto mb-5"></div>
       <p class="text-xs text-wedding-stoneMuted font-light leading-relaxed">
-        Gracias por acompañarnos y ser parte de nuestra historia.
+        Gracias por acompañarnos y ser parte imprescindible de nuestra historia.
       </p>
     </div>
   </footer>
 
-  <!-- Notificación Toast -->
+  <!-- Notificación Toast Flotante -->
   <div id="toast" class="fixed top-6 right-6 z-50 bg-wedding-stoneDark text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs tracking-wider transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none">
     <i id="toastIcon" class="fa-solid fa-circle-check text-wedding-accent text-base"></i>
     <span id="toastMessage">Operación realizada</span>
   </div>
 
-
-  <!-- ================================================================= -->
-  <!-- JAVASCRIPT: CONFIGURACIÓN, CONTADOR, AUDIO & MURAL LOCALSTORAGE   -->
-  <!-- ================================================================= -->
+  <!-- =============================================================== -->
+  <!-- JAVASCRIPT: CONFIGURACIÓN, CONTADOR, AUDIO & LOCALSTORAGE        -->
+  <!-- =============================================================== -->
   <script>
     /* ====================================================================
-       BLOQUE DE CONFIGURACIÓN GENERAL (MODIFICA TU FECHA FÁCILMENTE AQUÍ)
+       1. CONFIGURACIÓN DE FECHA (MODIFICA TU FECHA FÁCILMENTE AQUÍ)
        ==================================================================== */
+    // Formato ISO: AAAA-MM-DDTHH:MM:SS
+    const WEDDING_DATE = "2027-03-20T18:00:00";
+    
+    // Texto visible en el banner del Hero
+    const DISPLAY_DATE_TEXT = "Sábado, 20 de Marzo de 2027";
 
-    // 1. FECHA Y HORA DEL MATRIMONIO (Formato ISO estándar: AAAA-MM-DDTHH:MM:SS)
-    // Ejemplo: "2027-03-20T17:00:00"
-    const WEDDING_DATE = "2027-03-20T17:00:00";
-
-    // 2. TEXTO LEGIBLE QUE SE MOSTRARÁ EN EL BANNER PRINCIPAL (HERO)
-    // Ejemplo: "SÁBADO, 20 DE MARZO DE 2027"
-    const DISPLAY_DATE_TEXT = "SÁBADO, 20 DE MARZO DE 2027";
+    /* ====================================================================
+       2. ESPACIO PARA EL PROGRAMADOR: MÚSICA DE LA NOVIA Y DEL NOVIO
+       ====================================================================
+       * Si pegas la URL de un archivo MP3/OGG (ej. 'musica/novia.mp3'),
+         el reproductor cargará tu canción real.
+       * Si dejas las comillas vacías "", el sistema sintetizará
+         automáticamente una composición romántica distinta para cada uno:
+         - Yanella: Melodía dulce en tono mayor (campanas, piano agudo y arpa).
+         - Rodrigo: Acordes cálidos y profundos en tono menor (cuerdas y guitarra).
+       ==================================================================== */
+    const MUSIC_CONFIG = {
+      BRIDE_AUDIO_URL: "", // Pega aquí el link/archivo de Yanella (ej. "audio/novia.mp3")
+      GROOM_AUDIO_URL: ""  // Pega aquí el link/archivo de Rodrigo (ej. "audio/novio.mp3")
+    };
 
     /* ==================================================================== */
 
-    // Renderizar la fecha en el Hero
+    // Mostrar fecha en el Hero
     document.getElementById('heroDateDisplay').textContent = DISPLAY_DATE_TEXT;
 
-    // Toast Notificaciones
+    // Toast flotante
     function showToast(message, icon = "fa-circle-check") {
       const toast = document.getElementById('toast');
       const toastMessage = document.getElementById('toastMessage');
@@ -739,7 +808,7 @@
 
       setTimeout(() => {
         toast.classList.add('-translate-y-28', 'opacity-0');
-      }, 3400);
+      }, 3200);
     }
 
     // Cuenta Regresiva
@@ -767,7 +836,6 @@
         document.getElementById('cdMins').textContent = m < 10 ? '0' + m : m;
         document.getElementById('cdSecs').textContent = s < 10 ? '0' + s : s;
       }
-
       updateTimer();
       setInterval(updateTimer, 1000);
     }
@@ -791,9 +859,9 @@ Email: boda.yanella.rodrigo@gmail.com`;
         document.execCommand('copy');
         showToast("Datos bancarios copiados al portapapeles");
         const btnText = document.getElementById('copyBankText');
-        const prevText = btnText.textContent;
+        const prev = btnText.textContent;
         btnText.textContent = "¡Datos Copiados!";
-        setTimeout(() => { btnText.textContent = prevText; }, 2500);
+        setTimeout(() => { btnText.textContent = prev; }, 2400);
       } catch (err) {
         showToast("Copia los datos manualmente", "fa-circle-exclamation");
       }
@@ -803,9 +871,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
     // Menú móvil responsive
     const btnMobileMenu = document.getElementById('btnMobileMenu');
     const mobileMenu = document.getElementById('mobileMenu');
-    btnMobileMenu.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
+    btnMobileMenu.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
     document.querySelectorAll('.mobile-nav-link').forEach(link => {
       link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
     });
@@ -822,14 +888,14 @@ Email: boda.yanella.rodrigo@gmail.com`;
       height = canvas.height = window.innerHeight;
     });
 
-    const petals = Array.from({ length: 30 }, () => ({
+    const petals = Array.from({ length: 32 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       size: Math.random() * 8 + 5,
       speedX: Math.random() * 1.2 - 0.4,
       speedY: Math.random() * 1.3 + 0.7,
       angle: Math.random() * 360,
-      spin: Math.random() * 1.5 - 0.75,
+      spin: Math.random() * 1.6 - 0.8,
       color: Math.random() > 0.4 ? 'rgba(235, 192, 192, 0.45)' : 'rgba(212, 175, 55, 0.35)'
     }));
 
@@ -865,6 +931,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
     }
     drawPetals();
 
+    // Control de Pétalos (Botón Autónomo)
     document.getElementById('btnPetalsToggle').addEventListener('click', function() {
       petalsActive = !petalsActive;
       const icon = document.getElementById('petalsIcon');
@@ -879,84 +946,215 @@ Email: boda.yanella.rodrigo@gmail.com`;
       }
     });
 
-    // Música Ambiental Romántica (Web Audio API - Sin Enlaces Caídos)
+    // ====================================================================
+    // MOTOR DE AUDIO: SELECTOR DE BURBUJAS Y DOS TEMAS DISTINTOS
+    // ====================================================================
     let audioCtx = null;
     let isPlaying = false;
-    let musicTimer = null;
+    let currentTrack = null; // 'bride' | 'groom' | null
+    let bubblesOpen = false;
+    let synthInterval = null;
 
-    const chords = [
-      [261.63, 329.63, 392.00, 493.88], // Cmaj7
-      [220.00, 261.63, 329.63, 392.00], // Am7
-      [174.61, 220.00, 261.63, 329.63], // Fmaj7
-      [196.00, 246.94, 293.66, 349.23]  // G7
+    // Reproductor de audio HTML5 para archivos reales del programador
+    const externalAudio = new Audio();
+    externalAudio.loop = true;
+
+    // Composición 1: Tema de Yanella (Novia)
+    // Tonalidad mayor: Cmaj7, Fmaj7, G6, Am9 con campanas suaves y arpa
+    const brideChords = [
+      [523.25, 659.25, 783.99, 987.77], // C5, E5, G5, B5
+      [349.23, 440.00, 523.25, 659.25], // F4, A4, C5, E5
+      [392.00, 493.88, 587.33, 880.00], // G4, B4, D5, A5
+      [440.00, 523.25, 659.25, 783.99]  // A4, C5, E5, G5
     ];
-    let chordIndex = 0;
+    let brideIndex = 0;
 
-    function playArpeggio() {
+    // Composición 2: Tema de Rodrigo (Novio)
+    // Tonalidad menor serena y cálida: Dm9, Am7, Bbmaj7, C
+    const groomChords = [
+      [293.66, 349.23, 440.00, 659.25], // D4, F4, A4, E5
+      [220.00, 261.63, 329.63, 392.00], // A3, C4, E4, G4
+      [233.08, 293.66, 349.23, 440.00], // Bb3, D4, F4, A4
+      [261.63, 329.63, 392.00, 523.25]  // C4, E4, G4, C5
+    ];
+    let groomIndex = 0;
+
+    function playSynthArpeggio(track) {
       if (!isPlaying || !audioCtx) return;
-      const chord = chords[chordIndex % chords.length];
-      chordIndex++;
 
-      chord.forEach((freq, idx) => {
+      const isBride = track === 'bride';
+      const chords = isBride ? brideChords : groomChords;
+      let index = isBride ? brideIndex : groomIndex;
+      const currentChord = chords[index % chords.length];
+
+      if (isBride) brideIndex++; else groomIndex++;
+
+      currentChord.forEach((freq, idx) => {
         setTimeout(() => {
-          if (!isPlaying || !audioCtx) return;
+          if (!isPlaying || !audioCtx || currentTrack !== track) return;
+
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
 
-          osc.type = 'sine';
+          // La novia suena a campanilla brillante (sine); el novio a cuerdas suaves (triangle)
+          osc.type = isBride ? 'sine' : 'triangle';
           osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
           gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.035, audioCtx.currentTime + 0.3);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
+          if (isBride) {
+            // Ataque suave y decaimiento etéreo
+            gain.gain.linearRampToValueAtTime(0.032, audioCtx.currentTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+          } else {
+            // Sonido más cálido y sostenido
+            gain.gain.linearRampToValueAtTime(0.040, audioCtx.currentTime + 0.35);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.9);
+          }
 
           osc.connect(gain);
           gain.connect(audioCtx.destination);
 
           osc.start();
-          osc.stop(audioCtx.currentTime + 2.9);
-        }, idx * 280);
+          osc.stop(audioCtx.currentTime + 3.0);
+        }, idx * (isBride ? 240 : 310));
       });
     }
 
-    document.getElementById('btnMusicToggle').addEventListener('click', function() {
+    function initAudioContext() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContextClass();
       }
-
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
+    }
 
-      const icon = document.getElementById('musicIcon');
+    function stopAllAudio() {
+      if (synthInterval) {
+        clearInterval(synthInterval);
+        synthInterval = null;
+      }
+      externalAudio.pause();
+      externalAudio.currentTime = 0;
+    }
 
-      if (!isPlaying) {
-        isPlaying = true;
-        icon.className = "fa-solid fa-volume-high text-base text-emerald-600";
-        playArpeggio();
-        musicTimer = setInterval(playArpeggio, 2500);
-        showToast("Música ambiental iniciada ♫");
+    function updateTrackUI() {
+      const brideDot = document.getElementById('brideActiveDot');
+      const groomDot = document.getElementById('groomActiveDot');
+      const muteIcon = document.getElementById('muteIcon');
+      const btnBride = document.getElementById('btnBrideTrack');
+      const btnGroom = document.getElementById('btnGroomTrack');
+
+      // Puntos activos en las burbujitas
+      if (currentTrack === 'bride') {
+        brideDot.classList.remove('hidden');
+        groomDot.classList.add('hidden');
+        btnBride.classList.add('ring-2', 'ring-rose-400', 'bg-rose-50');
+        btnGroom.classList.remove('ring-2', 'ring-wedding-accent', 'bg-amber-50');
+      } else if (currentTrack === 'groom') {
+        groomDot.classList.remove('hidden');
+        brideDot.classList.add('hidden');
+        btnGroom.classList.add('ring-2', 'ring-wedding-accent', 'bg-amber-50');
+        btnBride.classList.remove('ring-2', 'ring-rose-400', 'bg-rose-50');
       } else {
+        brideDot.classList.add('hidden');
+        groomDot.classList.add('hidden');
+        btnBride.classList.remove('ring-2', 'ring-rose-400', 'bg-rose-50');
+        btnGroom.classList.remove('ring-2', 'ring-wedding-accent', 'bg-amber-50');
+      }
+
+      // Icono del botón Silenciar / Reanudar
+      if (isPlaying) {
+        muteIcon.className = "fa-solid fa-volume-high text-base text-emerald-600 pulse-playing";
+      } else {
+        muteIcon.className = "fa-solid fa-volume-xmark text-base text-wedding-accent";
+      }
+    }
+
+    function playTrack(track) {
+      initAudioContext();
+      stopAllAudio();
+      currentTrack = track;
+      isPlaying = true;
+
+      const customUrl = track === 'bride' ? MUSIC_CONFIG.BRIDE_AUDIO_URL : MUSIC_CONFIG.GROOM_AUDIO_URL;
+
+      if (customUrl && customUrl.trim() !== "") {
+        // Reproducir archivo MP3/audio propio del desarrollador
+        externalAudio.src = customUrl;
+        externalAudio.play().catch(e => console.log("Audio play prevented:", e));
+      } else {
+        // Reproducir composición sintetizada por Web Audio API
+        playSynthArpeggio(track);
+        synthInterval = setInterval(() => playSynthArpeggio(track), track === 'bride' ? 2400 : 2700);
+      }
+
+      updateTrackUI();
+      showToast(track === 'bride' ? "Reproduciendo: Tema de Yanella ♫" : "Reproduciendo: Tema de Rodrigo ♫");
+    }
+
+    // Toggle para desplegar u ocultar las burbujitas
+    function toggleBubbles(forceOpen = null) {
+      bubblesOpen = forceOpen !== null ? forceOpen : !bubblesOpen;
+      const brideWrap = document.getElementById('bubbleBrideWrap');
+      const groomWrap = document.getElementById('bubbleGroomWrap');
+      const musicNoteIcon = document.getElementById('musicNoteIcon');
+
+      if (bubblesOpen) {
+        brideWrap.classList.remove('bubble-hidden');
+        brideWrap.classList.add('bubble-visible');
+        groomWrap.classList.remove('bubble-hidden');
+        groomWrap.classList.add('bubble-visible');
+        musicNoteIcon.classList.add('rotate-45', 'text-wedding-accent');
+      } else {
+        brideWrap.classList.remove('bubble-visible');
+        brideWrap.classList.add('bubble-hidden');
+        groomWrap.classList.remove('bubble-visible');
+        groomWrap.classList.add('bubble-hidden');
+        musicNoteIcon.classList.remove('rotate-45', 'text-wedding-accent');
+      }
+    }
+
+    // Evento del botón de nota musical (Abre o cierra las burbujitas)
+    document.getElementById('btnMusicNote').addEventListener('click', () => {
+      toggleBubbles();
+    });
+
+    // Evento de clic en burbujita de la Novia
+    document.getElementById('btnBrideTrack').addEventListener('click', () => {
+      playTrack('bride');
+    });
+
+    // Evento de clic en burbujita del Novio
+    document.getElementById('btnGroomTrack').addEventListener('click', () => {
+      playTrack('groom');
+    });
+
+    // Evento del botón autónomo Silenciar / Reproducir
+    document.getElementById('btnMuteToggle').addEventListener('click', () => {
+      if (isPlaying) {
+        // Silenciar / Pausar
         isPlaying = false;
-        clearInterval(musicTimer);
-        icon.className = "fa-solid fa-volume-xmark text-base";
+        stopAllAudio();
+        updateTrackUI();
         showToast("Música pausada");
+      } else {
+        // Si no hay pista elegida previamente, inicia con la de Yanella por defecto
+        playTrack(currentTrack || 'bride');
       }
     });
 
-    // =========================================================
-    // GESTIÓN DEL MURAL DE MENSAJES CON LOCALSTORAGE Y ANÓNIMO
-    // =========================================================
+    // ====================================================================
+    // GESTIÓN DEL MURAL DE MENSAJES (LOCALSTORAGE + MODO ANÓNIMO)
+    // ====================================================================
+    const LOCAL_STORAGE_KEY = 'boda_yanella_rodrigo_final_wishes';
 
-    const LOCAL_STORAGE_KEY = 'boda_yanella_rodrigo_wishes';
-
-    // Mensajes iniciales de bienvenida
     const defaultWishes = [
       {
         id: 1,
         author: "Tía Patricia & Familia",
-        message: "¡Qué inmensa alegría verlos dar este paso tan sagrado! Que la paciencia, el amor incondicional y la ternura los acompañen siempre. Los amamos con todo el corazón.",
+        message: "¡Qué emoción tan grande verlos dar este paso tan sagrado! Que la ternura, el respeto y la alegría guíen cada uno de sus días. Los amamos con toda el alma.",
         emoji: "💍",
         date: "Hace unos días",
         isAnonymous: false
@@ -964,7 +1162,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
       {
         id: 2,
         author: "Amigo de la Universidad",
-        message: "Rodrigo, encontraste a tu compañera ideal. Yanella, bienvenida para siempre al grupo. ¡Prometemos dejarlo absolutamente todo en la pista de baile!",
+        message: "Rodrigo, encontraste a tu gran compañera de vida. Yanella, bienvenida oficial a la familia. ¡Listos para darlo todo en la pista de baile!",
         emoji: "🥂",
         date: "Ayer",
         isAnonymous: false
@@ -972,7 +1170,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
       {
         id: 3,
         author: "De corazón",
-        message: "Les deseo una vida repleta de risas y de complicidad constante. Que en los días soleados celebren y en las tormentas se abracen fuerte. ¡Felicidades infinitas!",
+        message: "Les deseamos una vida repleta de risas y complicidad. Que en los momentos de calma celebren y en los difíciles se tomen más fuerte de la mano. ¡Felicidades!",
         emoji: "❤️",
         date: "Hoy",
         isAnonymous: true
@@ -999,29 +1197,29 @@ Email: boda.yanella.rodrigo@gmail.com`;
 
       wishes.forEach(item => {
         const card = document.createElement('div');
-        card.className = "bg-white p-6 rounded-2xl border gold-border postcard-shadow flex flex-col justify-between hover:translate-y-[-2px] transition-transform duration-300 relative overflow-hidden";
+        card.className = "bg-white p-6 rounded-2xl border gold-border gold-shadow flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 relative";
         
         card.innerHTML = `
-          <!-- Sello / Emoji Postal -->
-          <div class="flex items-center justify-between pb-3 border-b gold-border mb-4">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">${item.emoji || '💍'}</span>
-              <div>
-                <h4 class="font-serif text-lg font-semibold text-wedding-stoneDark leading-tight">
-                  ${item.isAnonymous ? 'Anónimo / De corazón' : item.author}
-                </h4>
-                <span class="text-[10px] uppercase tracking-wider text-wedding-stoneMuted">${item.date}</span>
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b gold-border mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">${item.emoji || '💍'}</span>
+                <div>
+                  <h4 class="font-serif text-lg font-semibold text-wedding-stoneDark leading-tight">
+                    ${item.isAnonymous ? 'Anónimo / De corazón' : item.author}
+                  </h4>
+                  <span class="text-[10px] uppercase tracking-wider text-wedding-stoneMuted">${item.date}</span>
+                </div>
               </div>
+              <i class="fa-solid fa-stamp text-wedding-accent/25 text-xl"></i>
             </div>
-            <i class="fa-solid fa-stamp text-wedding-accent/25 text-xl"></i>
+
+            <p class="text-xs sm:text-sm text-wedding-stoneMuted font-light italic leading-relaxed mb-4">
+              "${item.message}"
+            </p>
           </div>
 
-          <!-- Mensaje -->
-          <p class="text-xs sm:text-sm text-wedding-stoneMuted font-light italic leading-relaxed mb-4">
-            "${item.message}"
-          </p>
-
-          <div class="text-right">
+          <div class="text-right pt-2">
             <span class="text-[10px] font-mono text-wedding-accent uppercase tracking-widest font-semibold">
               #YanellaYRodrigo
             </span>
@@ -1031,7 +1229,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
       });
     }
 
-    // Manejar check de anónimo
+    // Manejo de la casilla anónima
     const anonCheck = document.getElementById('anonCheck');
     const authorContainer = document.getElementById('authorContainer');
     const wishAuthorInput = document.getElementById('wishAuthor');
@@ -1043,11 +1241,11 @@ Email: boda.yanella.rodrigo@gmail.com`;
         wishAuthorInput.placeholder = "Publicando como: Anónimo / De corazón";
       } else {
         authorContainer.classList.remove('opacity-40', 'pointer-events-none');
-        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Tu Nombre y Apellido";
+        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Camila Pérez";
       }
     });
 
-    // Envío de nuevo mensaje
+    // Envío del formulario de dedicatorias
     document.getElementById('wishesForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -1057,7 +1255,7 @@ Email: boda.yanella.rodrigo@gmail.com`;
       const selectedEmoji = document.querySelector('input[name="wishEmoji"]:checked')?.value || '💍';
 
       if (!message) {
-        showToast("Por favor escribe tu mensaje", "fa-circle-exclamation");
+        showToast("Por favor escribe tu dedicatoria", "fa-circle-exclamation");
         return;
       }
 
@@ -1079,22 +1277,19 @@ Email: boda.yanella.rodrigo@gmail.com`;
 
       renderMural();
 
-      // Reset form
+      // Limpiar formulario
       document.getElementById('wishText').value = '';
-      if (!isAnon) {
-        wishAuthorInput.value = '';
-      }
+      if (!isAnon) wishAuthorInput.value = '';
 
       showToast("¡Tu mensaje ha sido publicado en el mural!");
-
-      // Scroll suave hacia el mural para ver su mensaje
       document.getElementById('mural').scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Inicialización general en DOMContentLoaded
+    // Iniciar funciones al cargar la página
     document.addEventListener('DOMContentLoaded', () => {
       initCountdown();
       renderMural();
+      updateTrackUI();
     });
   </script>
 </body>
