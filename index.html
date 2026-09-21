@@ -1,1 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Invitación a Nuestro Boda</title>
+	<style>
+		#carta {
+			display: none;
+			background-color: #f1f1f1;
+			padding: 20px;
+			border: 1px solid #ccc;
+			margin-top: 20px;
+		}
+	</style>
+</head>
+<body>
+	<h1>¡Te invitamos a nuestro boda!</h1>
+	<p>Estamos orgullosos de anunciar que [Nombre del novio] y [Nombre de la novia] van a casarse.</p>
+	<p>La boda tendrá lugar el [Fecha] en [Lugar].</p>
+	<p>Te pedimos que nos acompañes en este día tan importante.</p>
+	<p>Si estás interesado en asistir, por favor, haznos saber a través de [Correo electrónico o número de teléfono].</p>
 
+	<button id="mostrarCarta">Ver Carta</button>
+	<div id="carta">
+		<h2>Carta al Medio</h2>
+		<p>Estimado/a [Nombre del medio],</p>
+		<p>Es un placer anunciar que [Nombre del novio] y [Nombre de la novia] van a casarse en [Fecha] en [Lugar].</p>
+		<p>Te invitamos a que nos acompañes en este día tan importante.</p>
+		<p>Para más información, puedes contactarnos en [Correo electrónico o número de teléfono].</p>
+		<p>Gracias,</p>
+		<p>[Tu nombre]</p>
+	</div>
+
+	<script>
+		var mostrarCartaButton = document.getElementById('mostrarCarta');
+		var cartaDiv = document.getElementById('carta');
+
+		mostrarCartaButton.addEventListener('click', function() {
+			if (cartaDiv.style.display === 'none') {
+				cartaDiv.style.display = 'block';
+			} else {
+				cartaDiv.style.display = 'none';
+			}
+		});
+	</script>
+</body>
+</html>
