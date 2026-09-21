@@ -1,46 +1,553 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" class="scroll-smooth">
 <head>
-	<title>Invitación a Nuestro Boda</title>
-	<style>
-		#carta {
-			display: none;
-			background-color: #f1f1f1;
-			padding: 20px;
-			border: 1px solid #ccc;
-			margin-top: 20px;
-		}
-	</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yanella & Rodrigo — Nuestra Boda</title>
+
+  <!-- Metadatos Open Graph para previsualización en WhatsApp / Redes -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Yanella & Rodrigo — Invitación de Nuestra Boda">
+  <meta property="og:description" content="Nos casamos y queremos que formes parte de este momento tan especial. ¡Acompáñanos a celebrar el amor!">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop">
+  <meta name="theme-color" content="#b89358">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Cormorant Garamond, Great Vibes & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Montserrat', 'sans-serif'],
+          },
+          colors: {
+            gold: {
+              DEFAULT: '#b89358',
+              light: '#d4af37',
+              dark: '#997332',
+              50: '#fdfbf7',
+              100: '#f7f1e5',
+            },
+            champagne: '#fbf8f3',
+            espresso: '#1a1815'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Efecto de grano sutil */
+    .bg-paper {
+      background-color: #fbf8f3;
+      background-image: radial-gradient(#d4af37 0.6px, transparent 0.6px);
+      background-size: 28px 28px;
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #b89358 0%, #d4af37 50%, #997332 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-border-ornament {
+      box-shadow: 0 0 0 1px rgba(184, 147, 88, 0.25), 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+    }
+  </style>
 </head>
-<body>
-	<h1>¡Te invitamos a nuestro boda!</h1>
-	<p>Estamos orgullosos de anunciar que [Nombre del novio] y [Nombre de la novia] van a casarse.</p>
-	<p>La boda tendrá lugar el [Fecha] en [Lugar].</p>
-	<p>Te pedimos que nos acompañes en este día tan importante.</p>
-	<p>Si estás interesado en asistir, por favor, haznos saber a través de [Correo electrónico o número de teléfono].</p>
 
-	<button id="mostrarCarta">Ver Carta</button>
-	<div id="carta">
-		<h2>Carta al Medio</h2>
-		<p>Estimado/a [Nombre del medio],</p>
-		<p>Es un placer anunciar que [Nombre del novio] y [Nombre de la novia] van a casarse en [Fecha] en [Lugar].</p>
-		<p>Te invitamos a que nos acompañes en este día tan importante.</p>
-		<p>Para más información, puedes contactarnos en [Correo electrónico o número de teléfono].</p>
-		<p>Gracias,</p>
-		<p>[Tu nombre]</p>
-	</div>
+<body class="bg-paper text-stone-800 font-sans antialiased relative selection:bg-gold-light selection:text-white overflow-x-hidden">
 
-	<script>
-		var mostrarCartaButton = document.getElementById('mostrarCarta');
-		var cartaDiv = document.getElementById('carta');
+  <!-- Lienzo de Pétalos y Partículas -->
+  <canvas id="petalCanvas" class="fixed inset-0 pointer-events-none z-10 opacity-75"></canvas>
 
-		mostrarCartaButton.addEventListener('click', function() {
-			if (cartaDiv.style.display === 'none') {
-				cartaDiv.style.display = 'block';
-			} else {
-				cartaDiv.style.display = 'none';
-			}
-		});
-	</script>
+  <!-- Botones de Control Flotantes -->
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+    <!-- Música Ambiental -->
+    <button id="musicToggle" class="w-12 h-12 rounded-full bg-white/95 text-gold-dark shadow-xl border border-gold/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Activar/Pausar música">
+      <i id="musicIcon" class="fa-solid fa-volume-xmark text-lg"></i>
+    </button>
+    <!-- Partículas On/Off -->
+    <button id="particlesToggle" class="w-12 h-12 rounded-full bg-white/95 text-stone-600 shadow-xl border border-stone-200 flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Pausar animación de pétalos">
+      <i class="fa-solid fa-spa text-lg"></i>
+    </button>
+  </div>
+
+  <!-- SECCIÓN: HERO PRINCIPAL -->
+  <header class="min-h-screen relative flex items-center justify-center text-center px-4 py-20">
+    <div class="max-w-3xl mx-auto z-20 flex flex-col items-center">
+      
+      <!-- Ornamento superior -->
+      <div class="flex items-center gap-3 text-gold mb-6 opacity-80">
+        <span class="h-px w-12 bg-gold/40"></span>
+        <i class="fa-regular fa-heart text-xs"></i>
+        <span class="h-px w-12 bg-gold/40"></span>
+      </div>
+
+      <p class="font-sans text-xs uppercase tracking-[0.35em] text-stone-500 mb-3">
+        Nuestra Boda
+      </p>
+
+      <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl text-stone-900 tracking-tight leading-none mb-4 italic">
+        Yanella <span class="font-script text-5xl md:text-7xl not-italic text-gold block sm:inline my-1 sm:my-0">&</span> Rodrigo
+      </h1>
+
+      <p class="font-serif italic text-xl md:text-2xl text-stone-600 max-w-xl mx-auto mb-8 leading-relaxed">
+        «El amor no se mira con los ojos, sino con el corazón.»
+      </p>
+
+      <!-- Fecha Display Hero -->
+      <div class="inline-block py-2 px-6 border-y border-gold/40 text-stone-700 tracking-[0.2em] uppercase text-xs md:text-sm mb-12">
+        <span id="heroDateText">Próximamente</span>
+      </div>
+
+      <!-- Cuenta Regresiva -->
+      <div class="grid grid-cols-4 gap-3 md:gap-6 text-center max-w-md w-full bg-white/70 backdrop-blur-md p-6 rounded-2xl border border-gold/20 shadow-lg">
+        <div class="flex flex-col">
+          <span id="cdDays" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
+          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Días</span>
+        </div>
+        <div class="flex flex-col">
+          <span id="cdHours" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
+          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Horas</span>
+        </div>
+        <div class="flex flex-col">
+          <span id="cdMins" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
+          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Min</span>
+        </div>
+        <div class="flex flex-col">
+          <span id="cdSecs" class="font-serif text-3xl md:text-4xl font-semibold text-stone-900">00</span>
+          <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-500 mt-1">Seg</span>
+        </div>
+      </div>
+
+      <!-- Flecha hacia abajo -->
+      <a href="#ceremonia" class="mt-14 text-stone-400 hover:text-gold transition-colors animate-bounce">
+        <i class="fa-solid fa-chevron-down text-lg"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- SECCIÓN: EL EVENTO (CEREMONIA, RECEPCIÓN Y FIESTA EN EL MISMO LUGAR) -->
+  <section id="ceremonia" class="py-24 px-4 max-w-4xl mx-auto relative z-20">
+    <div class="text-center mb-16">
+      <span class="font-script text-3xl md:text-4xl text-gold block mb-2">Celebración Única</span>
+      <h2 class="font-serif text-4xl md:text-5xl text-stone-900 tracking-wide uppercase font-light">
+        Ceremonia, Recepción & Fiesta
+      </h2>
+      <div class="h-0.5 w-16 bg-gold/50 mx-auto mt-4"></div>
+      <p class="font-serif italic text-lg text-stone-600 max-w-lg mx-auto mt-4">
+        Todo nuestro evento se llevará a cabo en una sola locación para que disfrutemos de principio a fin sin traslados.
+      </p>
+    </div>
+
+    <div class="bg-white/90 backdrop-blur-md rounded-3xl p-8 md:p-12 gold-border-ornament text-center relative overflow-hidden">
+      <!-- Ornamento fondo sutil -->
+      <div class="absolute -top-12 -right-12 text-gold/5 text-9xl select-none pointer-events-none">
+        <i class="fa-solid fa-ring"></i>
+      </div>
+
+      <div class="w-16 h-16 rounded-full bg-gold-50 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+        <i class="fa-solid fa-champagne-glasses"></i>
+      </div>
+
+      <h3 class="font-serif text-2xl md:text-3xl text-stone-900 mb-2 font-medium">
+        Lugar del Evento
+      </h3>
+
+      <!-- Estado: Por Confirmar -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold tracking-wider uppercase mb-6">
+        <i class="fa-regular fa-clock"></i> Lugar por confirmar
+      </div>
+
+      <p class="text-stone-600 max-w-md mx-auto text-sm md:text-base leading-relaxed mb-6">
+        Estamos ultimando los detalles para elegir el espacio perfecto donde celebraremos tanto nuestra ceremonia como el banquete y la fiesta. Muy pronto compartiremos la dirección exacta y el enlace directo de Google Maps.
+      </p>
+
+      <!-- Cronograma General del Mismo Lugar -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-stone-100 pt-8 mt-4 text-stone-700 text-sm">
+        <div class="p-3 bg-stone-50/70 rounded-xl">
+          <i class="fa-solid fa-rings-wedding text-gold mb-1 block text-lg"></i>
+          <span class="font-medium block text-stone-900">Ceremonia</span>
+          <span class="text-xs text-stone-500">Mismo recinto</span>
+        </div>
+        <div class="p-3 bg-stone-50/70 rounded-xl">
+          <i class="fa-solid fa-utensils text-gold mb-1 block text-lg"></i>
+          <span class="font-medium block text-stone-900">Recepción & Cena</span>
+          <span class="text-xs text-stone-500">Sin desplazamientos</span>
+        </div>
+        <div class="p-3 bg-stone-50/70 rounded-xl">
+          <i class="fa-solid fa-music text-gold mb-1 block text-lg"></i>
+          <span class="font-medium block text-stone-900">Fiesta & Brindis</span>
+          <span class="text-xs text-stone-500">Hasta el final</span>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="#rsvp" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-stone-900 text-gold-100 hover:bg-gold-dark hover:text-white transition-all text-xs tracking-widest uppercase font-medium shadow-md">
+          <i class="fa-regular fa-calendar-check"></i> Confirmar mi asistencia previa
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: CÓDIGO DE VESTIMENTA -->
+  <section class="py-16 px-4 bg-white/50 border-y border-gold/15 relative z-20">
+    <div class="max-w-2xl mx-auto text-center">
+      <div class="w-12 h-12 rounded-full bg-gold-50 border border-gold/30 text-gold-dark flex items-center justify-center mx-auto mb-4 text-lg">
+        <i class="fa-solid fa-person-dress"></i>
+      </div>
+      <h2 class="font-serif text-3xl md:text-4xl text-stone-900 mb-2 uppercase font-light tracking-wide">
+        Código de Vestimenta
+      </h2>
+      <p class="font-serif italic text-xl text-gold-dark mb-4">Elegante / Formal</p>
+      <p class="text-stone-600 text-sm md:text-base leading-relaxed mb-6">
+        Agradecemos que reserves el color blanco y marfil exclusivamente para la novia. Queremos que luzcas fabuloso y disfrutes cómodamente de toda la noche.
+      </p>
+      <div class="flex justify-center items-center gap-3">
+        <span class="w-7 h-7 rounded-full bg-[#1c2230] border border-white shadow" title="Azul Profundo"></span>
+        <span class="w-7 h-7 rounded-full bg-[#3c4a3e] border border-white shadow" title="Verde Salvia / Esmeralda"></span>
+        <span class="w-7 h-7 rounded-full bg-[#8c3a4a] border border-white shadow" title="Borgoña / Terracota"></span>
+        <span class="w-7 h-7 rounded-full bg-[#d8b08c] border border-white shadow" title="Nude / Rose Gold"></span>
+        <span class="w-7 h-7 rounded-full bg-[#2a2a2a] border border-white shadow" title="Negro / Antracita"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: REGALO / DATOS BANCARIOS -->
+  <section class="py-24 px-4 max-w-3xl mx-auto relative z-20">
+    <div class="text-center mb-12">
+      <span class="font-script text-3xl text-gold block mb-1">Muestra de Afecto</span>
+      <h2 class="font-serif text-4xl text-stone-900 tracking-wide uppercase font-light">
+        Regalo de Bodas
+      </h2>
+      <div class="h-0.5 w-16 bg-gold/50 mx-auto mt-3"></div>
+      <p class="font-serif italic text-base md:text-lg text-stone-600 max-w-md mx-auto mt-4">
+        Tu presencia es nuestro mayor regalo. Sin embargo, si deseas hacernos un presente, te dejamos nuestra cuenta para nuestra luna de miel o lluvia de sobres el día del evento.
+      </p>
+    </div>
+
+    <div class="bg-white/90 rounded-2xl p-6 md:p-8 border border-gold/20 shadow-md text-center max-w-xl mx-auto">
+      <i class="fa-solid fa-gift text-gold text-2xl mb-3"></i>
+      <h3 class="font-serif text-xl font-medium text-stone-800 mb-2">Transferencia Bancaria</h3>
+      <p class="text-xs text-stone-500 mb-6">Puedes copiar los datos con un solo clic:</p>
+
+      <div class="bg-stone-50 rounded-xl p-4 text-left font-mono text-xs md:text-sm text-stone-700 border border-stone-200 space-y-1 mb-6 select-all" id="bankDetailsBlock">
+        <p><span class="text-stone-400 font-sans">Banco:</span> Banco Estado / Banco Santander</p>
+        <p><span class="text-stone-400 font-sans">Titular:</span> Yanella & Rodrigo</p>
+        <p><span class="text-stone-400 font-sans">Tipo de Cuenta:</span> Cuenta Corriente / Vista</p>
+        <p><span class="text-stone-400 font-sans">Número de Cuenta:</span> 1234567890</p>
+        <p><span class="text-stone-400 font-sans">RUT / ID:</span> 12.345.678-9</p>
+        <p><span class="text-stone-400 font-sans">Correo:</span> matrimonio.yanella.rodrigo@email.com</p>
+      </div>
+
+      <button id="copyBankBtn" class="px-5 py-2.5 rounded-full border border-gold text-gold-dark hover:bg-gold hover:text-white transition-all text-xs tracking-wider uppercase font-semibold flex items-center gap-2 mx-auto">
+        <i class="fa-regular fa-copy"></i> <span>Copiar Datos Bancarios</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: CONFIRMACIÓN RSVP POR WHATSAPP -->
+  <section id="rsvp" class="py-24 px-4 bg-white/70 border-t border-gold/20 relative z-20">
+    <div class="max-w-xl mx-auto text-center">
+      <span class="font-script text-3xl text-gold block mb-1">R.S.V.P.</span>
+      <h2 class="font-serif text-4xl text-stone-900 tracking-wide uppercase font-light mb-2">
+        Confirma tu Asistencia
+      </h2>
+      <p class="font-serif italic text-base text-stone-600 mb-8">
+        Por favor confírmanos antes de la fecha límite para preparar tu lugar con mucho cariño.
+      </p>
+
+      <form id="rsvpForm" class="bg-white p-6 md:p-8 rounded-3xl gold-border-ornament text-left space-y-4 shadow-xl">
+        
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+            Nombre y Apellido *
+          </label>
+          <input type="text" id="guestName" required placeholder="Ej. Camila Pérez" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+              ¿Asistirás? *
+            </label>
+            <select id="attendanceStatus" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm bg-white">
+              <option value="¡Sí, con mucho gusto asistiré!">¡Sí, asistiré!</option>
+              <option value="Lamentablemente no podré asistir">No podré asistir</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+              Cantidad de Pases *
+            </label>
+            <select id="guestCount" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm bg-white">
+              <option value="1 persona">1 Persona</option>
+              <option value="2 personas">2 Personas</option>
+              <option value="3 personas">3 Personas</option>
+              <option value="Familia completa">Familia</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+            Restricciones Alimentarias / Menú
+          </label>
+          <input type="text" id="dietaryReqs" placeholder="Ej. Vegetariano, celíaco, alergias o sin restricciones" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+            ¿Qué canción no puede faltar en la fiesta? 🎵
+          </label>
+          <input type="text" id="suggestedSong" placeholder="Canción y Artista" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1">
+            Mensaje o Dedicatoria para los Novios
+          </label>
+          <textarea id="guestWishes" rows="3" placeholder="Escribe unas palabras de cariño..." class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-gold focus:outline-none text-sm transition"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5b] text-white font-semibold text-sm tracking-wider uppercase transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-4">
+          <i class="fa-brands fa-whatsapp text-xl"></i> Confirmar vía WhatsApp
+        </button>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 text-center relative z-20 border-t border-gold/20">
+    <p class="font-script text-4xl text-gold mb-1">Yanella & Rodrigo</p>
+    <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Gracias por compartir este sueño con nosotros</p>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: LÓGICA, FECHA Y FUNCIONALIDAD  -->
+  <!-- ========================================== -->
+  <script>
+    /* ====================================================================
+       CONFIGURACIÓN GENERAL (MODIFICA TU FECHA Y NÚMERO AQUÍ)
+       ==================================================================== */
+    
+    // 1. MODIFICA AQUÍ LA FECHA Y HORA DEL MATRIMONIO:
+    // Formato: AAAA-MM-DDTHH:MM:SS (Año-Mes-DíaTHora:Minuto:Segundo)
+    const WEDDING_DATE = "2027-03-20T18:00:00"; 
+    
+    // 2. TEXTO VISUAL PARA MOSTRAR EN EL HERO (Ejemplo: "Sábado, 20 de Marzo de 2027"):
+    const DISPLAY_DATE_TEXT = "Sábado, 20 de Marzo de 2027";
+
+    // 3. NÚMERO DE TELÉFONO PARA RECIBIR LAS CONFIRMACIONES EN WHATSAPP:
+    // Incluye código de país sin signo '+' ni espacios (Ej: 56912345678 para Chile)
+    const WHATSAPP_PHONE = "56900000000";
+
+    /* ==================================================================== */
+
+    // Actualizar texto del Hero
+    document.getElementById('heroDateText').innerText = DISPLAY_DATE_TEXT;
+
+    // Cuenta Regresiva
+    function updateCountdown() {
+      const target = new Date(WEDDING_DATE).getTime();
+      const now = new Date().getTime();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        document.getElementById('cdDays').innerText = "00";
+        document.getElementById('cdHours').innerText = "00";
+        document.getElementById('cdMins').innerText = "00";
+        document.getElementById('cdSecs').innerText = "00";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('cdDays').innerText = days < 10 ? '0' + days : days;
+      document.getElementById('cdHours').innerText = hours < 10 ? '0' + hours : hours;
+      document.getElementById('cdMins').innerText = mins < 10 ? '0' + mins : mins;
+      document.getElementById('cdSecs').innerText = secs < 10 ? '0' + secs : secs;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Copiar datos bancarios al portapapeles
+    document.getElementById('copyBankBtn').addEventListener('click', function () {
+      const textToCopy = `Datos de Transferencia Matrimonio Yanella & Rodrigo:
+Banco: Banco Estado / Banco Santander
+Titular: Yanella & Rodrigo
+RUT: 12.345.678-9
+Cuenta: 1234567890
+Correo: matrimonio.yanella.rodrigo@email.com`;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const span = this.querySelector('span');
+        const prev = span.innerText;
+        span.innerText = "¡Datos Copiados!";
+        this.classList.add('bg-gold', 'text-white');
+        setTimeout(() => {
+          span.innerText = prev;
+          this.classList.remove('bg-gold', 'text-white');
+        }, 2000);
+      });
+    });
+
+    // Envío de confirmación por WhatsApp
+    document.getElementById('rsvpForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('guestName').value.trim();
+      const attendance = document.getElementById('attendanceStatus').value;
+      const count = document.getElementById('guestCount').value;
+      const diet = document.getElementById('dietaryReqs').value.trim() || 'Sin observaciones';
+      const song = document.getElementById('suggestedSong').value.trim() || 'Ninguna sugerida';
+      const wishes = document.getElementById('guestWishes').value.trim();
+
+      let msg = `*CONFIRMACIÓN DE ASISTENCIA — BODA YANELLA & RODRIGO*\n\n`;
+      msg += `👤 *Invitado(a):* ${name}\n`;
+      msg += `💌 *Estado:* ${attendance}\n`;
+      msg += `👥 *Pases:* ${count}\n`;
+      msg += `🍽️ *Menú / Restricciones:* ${diet}\n`;
+      msg += `🎶 *Canción sugerida:* ${song}\n`;
+      if (wishes) {
+        msg += `💬 *Dedicatoria:* "${wishes}"\n`;
+      }
+
+      const encodedMsg = encodeURIComponent(msg);
+      const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedMsg}`;
+      window.open(url, '_blank');
+    });
+
+    // Animación de Pétalos y Destellos (Canvas)
+    const canvas = document.getElementById('petalCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let petalsActive = true;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = Array.from({ length: 35 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 8 + 4,
+      speedX: Math.random() * 1 - 0.5,
+      speedY: Math.random() * 1.2 + 0.6,
+      angle: Math.random() * 360,
+      spin: (Math.random() - 0.5) * 2,
+      opacity: Math.random() * 0.4 + 0.2
+    }));
+
+    function renderParticles() {
+      if (!petalsActive) return;
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.angle * Math.PI) / 180);
+        ctx.fillStyle = `rgba(212, 175, 55, ${p.opacity})`;
+        ctx.beginPath();
+        // Forma de pétalo suave
+        ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        p.y += p.speedY;
+        p.x += Math.sin(p.y * 0.01) * 0.5 + p.speedX;
+        p.angle += p.spin;
+
+        if (p.y > height + 20) {
+          p.y = -20;
+          p.x = Math.random() * width;
+        }
+      });
+
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    document.getElementById('particlesToggle').addEventListener('click', () => {
+      petalsActive = !petalsActive;
+      if (petalsActive) renderParticles();
+      else ctx.clearRect(0, 0, width, height);
+    });
+
+    // Música Ambiental Romántica (Web Audio API - Sin Enlaces Externos Caídos)
+    let audioCtx = null;
+    let isPlaying = false;
+    let intervalId = null;
+
+    const chords = [
+      [261.63, 329.63, 392.00, 493.88], // C maj7
+      [220.00, 261.63, 329.63, 392.00], // A min7
+      [174.61, 220.00, 261.63, 329.63], // F maj7
+      [196.00, 246.94, 293.66, 349.23]  // G7
+    ];
+    let chordIdx = 0;
+
+    function playArpeggio() {
+      if (!isPlaying || !audioCtx) return;
+      const currentChord = chords[chordIdx % chords.length];
+      chordIdx++;
+
+      currentChord.forEach((freq, i) => {
+        setTimeout(() => {
+          if (!isPlaying || !audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+          gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.05, audioCtx.currentTime + 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 2.6);
+        }, i * 320);
+      });
+    }
+
+    document.getElementById('musicToggle').addEventListener('click', function () {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (!isPlaying) {
+        audioCtx.resume();
+        isPlaying = true;
+        document.getElementById('musicIcon').className = 'fa-solid fa-volume-high text-lg';
+        playArpeggio();
+        intervalId = setInterval(playArpeggio, 2400);
+      } else {
+        isPlaying = false;
+        clearInterval(intervalId);
+        document.getElementById('musicIcon').className = 'fa-solid fa-volume-xmark text-lg';
+      }
+    });
+  </script>
 </body>
 </html>
