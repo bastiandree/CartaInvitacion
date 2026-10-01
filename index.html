@@ -223,7 +223,7 @@
 
   <!-- NAVEGACIÓN -->
   <nav class="sticky top-0 z-30 surface-bg/90 backdrop-blur-md border-b gold-border transition-colors duration-500">
-    <div class="max-w-5xl mx-auto px-5 py-3.5 flex items-center justify-between">
+    <div class="max-w-5xl mx-auto px-5 py-2.5 sm:py-3 flex items-center justify-between">
       <a href="#hero" class="font-script text-2xl md:text-3xl text-[#2C2825] hover:opacity-80 transition-opacity">
         Yanella & Rodrigo
       </a>
@@ -251,21 +251,21 @@
   </nav>
 
   <!-- SECCIÓN 1: HERO PRINCIPAL -->
-  <header id="hero" class="relative min-h-[92vh] flex items-center justify-center text-center px-4 pt-16 pb-20 overflow-hidden">
+  <header id="hero" class="relative min-h-[82vh] flex items-center justify-center text-center px-4 pt-6 sm:pt-8 pb-12 sm:pb-16 overflow-hidden">
     <div class="max-w-3xl mx-auto z-10 flex flex-col items-center">
       <!-- Coronilla ornamental: — ♡ — -->
-      <div class="flex items-center justify-center gap-3 mb-4 opacity-75">
+      <div class="flex items-center justify-center gap-3 mb-3 opacity-75">
         <span class="h-px w-8 border-t gold-border"></span>
         <i class="fa-regular fa-heart accent-text text-[11px]"></i>
         <span class="h-px w-8 border-t gold-border"></span>
       </div>
 
-      <p class="text-[11px] sm:text-xs uppercase tracking-[0.35em] accent-text font-semibold mb-3">
+      <p class="text-[11px] sm:text-xs uppercase tracking-[0.35em] accent-text font-semibold mb-2.5">
         ¡NOS CASAMOS!
       </p>
 
       <!-- Título de nombres -->
-      <div class="my-2 select-none">
+      <div class="my-1 sm:my-2 select-none">
         <h1 class="font-serif italic text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-[#2C2825] leading-none">
           Yanella <span class="font-script not-italic text-5xl sm:text-6xl md:text-7xl lg:text-8xl accent-text align-baseline ml-1">&</span>
         </h1>
@@ -275,12 +275,12 @@
       </div>
 
       <!-- Frase solicitada -->
-      <p class="font-serif italic text-base sm:text-lg md:text-xl text-[#6B655E] max-w-xl mx-auto mt-5 mb-8 font-light leading-relaxed">
+      <p class="font-serif italic text-base sm:text-lg md:text-xl text-[#6B655E] max-w-xl mx-auto mt-4 mb-7 font-light leading-relaxed">
         «Más de 20 años construyendo nuestro camino, y hoy celebramos que el destino siempre fue estar juntos. ¡Bienvenidos al para siempre!»
       </p>
 
       <!-- Cápsula de Fecha -->
-      <div class="inline-flex items-center gap-2 py-2 px-6 rounded-full border gold-border surface-bg/90 backdrop-blur-sm mb-10 shadow-sm">
+      <div class="inline-flex items-center gap-2 py-2 px-6 rounded-full border gold-border surface-bg/90 backdrop-blur-sm mb-8 sm:mb-10 shadow-sm">
         <span class="text-xs accent-text">•</span>
         <span id="heroDateDisplay" class="font-serif tracking-widest text-xs sm:text-sm font-medium text-[#2C2825] uppercase">
           SÁBADO, 5 DE DICIEMBRE DE 2026
@@ -289,7 +289,7 @@
       </div>
 
       <!-- Cuenta Regresiva -->
-      <div class="grid grid-cols-4 gap-3 sm:gap-4 max-w-sm sm:max-w-md mx-auto mb-10">
+      <div class="grid grid-cols-4 gap-3 sm:gap-4 max-w-sm sm:max-w-md mx-auto mb-8 sm:mb-10">
         <div class="surface-bg/90 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl border gold-border gold-shadow backdrop-blur-sm flex flex-col items-center">
           <span id="cdDays" class="font-serif text-3xl sm:text-4xl font-normal text-[#2C2825] leading-none">00</span>
           <span class="text-[10px] uppercase tracking-wider text-[#6B655E] font-medium mt-2">DÍAS</span>
@@ -1411,34 +1411,9 @@ Email: beyanella@gmail.com`;
     /* ===============================================================
        9. GESTIÓN DEL MURAL DE MENSAJES (LOCALSTORAGE + MODO ANÓNIMO)
        =============================================================== */
-    const LOCAL_STORAGE_KEY = 'boda_yanella_rodrigo_final_wishes';
+    const LOCAL_STORAGE_KEY = 'boda_yr_mural_2026';
 
-    const defaultWishes = [
-      {
-        id: 1,
-        author: "Tía Patricia & Familia",
-        message: "¡Qué emoción tan grande verlos dar este paso! Que la ternura, el respeto y la alegría guíen cada uno de sus días. Los amamos con toda el alma.",
-        emoji: "💍",
-        date: "Hace unos días",
-        isAnonymous: false
-      },
-      {
-        id: 2,
-        author: "Amigo de la Universidad",
-        message: "Rodrigo, encontraste a tu gran compañera de vida. Yanella, bienvenida oficial a la familia. ¡Listos para darlo todo en la pista de baile!",
-        emoji: "🥂",
-        date: "Ayer",
-        isAnonymous: false
-      },
-      {
-        id: 3,
-        author: "De corazón",
-        message: "Les deseamos una vida repleta de risas y complicidad. Que en los momentos de calma celebren y en los difíciles se tomen más fuerte de la mano. ¡Felicidades!",
-        emoji: "❤️",
-        date: "Hoy",
-        isAnonymous: true
-      }
-    ];
+    const defaultWishes = [];
 
     function getSavedWishes() {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -1457,6 +1432,17 @@ Email: beyanella@gmail.com`;
       const muralGrid = document.getElementById('muralGrid');
       const wishes = getSavedWishes();
       muralGrid.innerHTML = '';
+
+      if (wishes.length === 0) {
+        muralGrid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i class="fa-regular fa-envelope-open accent-text text-3xl mb-3 block"></i>
+            <p class="font-serif italic text-lg text-[#6B655E]">Aún no hay dedicatorias publicadas.</p>
+            <p class="text-xs text-[#6B655E] mt-1 font-light">¡Sé el primero en dedicar unas palabras a Yanella y Rodrigo!</p>
+          </div>
+        `;
+        return;
+      }
 
       wishes.forEach(item => {
         const card = document.createElement('div');
