@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yanella & Rodrigo — Nuestra Boda</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Yanella & Rodrigo — Invitación de Nuestra Boda">
+  <meta property="og:description" content="Nos casamos y queremos que seas parte de nuestro gran día. Acompáñanos a celebrar el amor.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80">
+  <meta name="theme-color" content="#b89358">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['Montserrat', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      /* Tema Rodrigo / Oro & Champagne */
+      --wedding-cream: #FAF7F2;
+      --wedding-surface: #FFFFFF;
+      --wedding-card-alt: #F6EFE9;
+      --wedding-accent: #B38E5D;
+      --wedding-accent-dark: #8F6E3F;
+      --wedding-accent-light: #F5ECE1;
+      --wedding-border-gold: rgba(179, 142, 93, 0.32);
+      --wedding-shadow-color: rgba(179, 142, 93, 0.16);
+      --wedding-dot-pattern: #B38E5D;
+      --wedding-stone-dark: #2C2825;
+      --wedding-stone-muted: #6B655E;
+    }
+
+    body.theme-bride {
+      /* Tema Yanella / Rosa Orquídea, Rosa Empolvado y Rosa Pastel */
+      --wedding-cream: #FCF4F7;
+      --wedding-surface: #FFFFFF;
+      --wedding-card-alt: #F9EBF1;
+      --wedding-accent: #BE5C8E;
+      --wedding-accent-dark: #993F6E;
+      --wedding-accent-light: #FCEBF2;
+      --wedding-border-gold: rgba(205, 156, 158, 0.5);
+      --wedding-shadow-color: rgba(190, 92, 142, 0.2);
+      --wedding-dot-pattern: #CD9C9E;
+      --wedding-stone-dark: #2C2825;
+      --wedding-stone-muted: #6B655E;
+    }
+
+    body {
+      background-color: var(--wedding-cream);
+      color: var(--wedding-stone-dark);
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.6s ease, color 0.6s ease;
+    }
+
+    .bg-paper-texture {
+      background-color: var(--wedding-cream);
+      background-image: radial-gradient(var(--wedding-dot-pattern) 0.55px, transparent 0.55px);
+      background-size: 26px 26px;
+      transition: background-color 0.6s ease;
+    }
+
+    .gold-border {
+      border: 1px solid var(--wedding-border-gold) !important;
+      transition: border-color 0.6s ease;
+    }
+
+    .gold-shadow {
+      box-shadow: 0 14px 35px -12px var(--wedding-shadow-color);
+      transition: box-shadow 0.6s ease;
+    }
+
+    .accent-bg {
+      background-color: var(--wedding-accent) !important;
+      transition: background-color 0.4s ease;
+    }
+    .accent-bg:hover {
+      background-color: var(--wedding-accent-dark) !important;
+    }
+
+    .accent-text {
+      color: var(--wedding-accent) !important;
+      transition: color 0.4s ease;
+    }
+
+    .accent-light-bg {
+      background-color: var(--wedding-accent-light) !important;
+      transition: background-color 0.4s ease;
+    }
+
+    .card-alt-bg {
+      background-color: var(--wedding-card-alt) !important;
+      transition: background-color 0.4s ease;
+    }
+
+    .surface-bg {
+      background-color: var(--wedding-surface) !important;
+      transition: background-color 0.4s ease;
+    }
+
+    #petalCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .music-bubble {
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .bubble-hidden {
+      opacity: 0;
+      transform: translateY(18px) scale(0.6);
+      pointer-events: none;
+    }
+    .bubble-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    @keyframes musicPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .pulse-playing {
+      animation: musicPulse 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-paper-texture relative">
+
+  <!-- Canvas de pétalos -->
+  <canvas id="petalCanvas"></canvas>
+
+  <!-- CONTROLES FLOTANTES EN ESQUINA INFERIOR DERECHA -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3.5 select-none">
+
+    <!-- 1. NOTA MUSICAL CON BURBUJITAS -->
+    <div class="relative flex flex-col items-center">
+      <div id="musicBubblesContainer" class="flex flex-col items-center gap-2.5 mb-2.5">
+        <!-- Burbuja Novia (Yanella) -->
+        <div class="relative group music-bubble bubble-hidden" id="bubbleBrideWrap">
+          <button id="btnBrideTrack" class="w-11 h-11 rounded-full bg-white text-[#BE5C8E] shadow-xl border-2 border-[#CD9C9E] flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative" title="Tema de Yanella">
+            <i class="fa-solid fa-heart text-sm"></i>
+            <span id="brideActiveDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-[#BE5C8E] rounded-full border border-white"></span>
+          </button>
+          <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-[#2C2825] text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+            Tema de Yanella (Novia)
+          </span>
+        </div>
+
+        <!-- Burbuja Novio (Rodrigo) -->
+        <div class="relative group music-bubble bubble-hidden" id="bubbleGroomWrap">
+          <button id="btnGroomTrack" class="w-11 h-11 rounded-full bg-white text-[#B38E5D] shadow-xl border-2 border-[#B38E5D]/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative" title="Tema de Rodrigo">
+            <i class="fa-solid fa-crown text-sm"></i>
+            <span id="groomActiveDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-[#B38E5D] rounded-full border border-white"></span>
+          </button>
+          <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-[#2C2825] text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+            Tema de Rodrigo (Novio)
+          </span>
+        </div>
+      </div>
+
+      <!-- Botón Nota Musical Principal -->
+      <div class="relative group">
+        <button id="btnMusicNote" class="w-12 h-12 rounded-full surface-bg text-[#2C2825] shadow-2xl border gold-border flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Elegir Tema Musical">
+          <i id="musicNoteIcon" class="fa-solid fa-music text-base accent-text transition-transform duration-300"></i>
+        </button>
+        <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-[#2C2825] text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+          Canciones de los Novios
+        </span>
+      </div>
+    </div>
+
+    <!-- 2. SILENCIAR / REANUDAR -->
+    <div class="relative group">
+      <button id="btnMuteToggle" class="w-12 h-12 rounded-full surface-bg accent-text shadow-2xl border gold-border flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Silenciar o Reproducir">
+        <i id="muteIcon" class="fa-solid fa-volume-xmark text-base"></i>
+      </button>
+      <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-[#2C2825] text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+        Silenciar / Reproducir
+      </span>
+    </div>
+
+    <!-- 3. ACTIVAR / PAUSAR PÉTALOS -->
+    <div class="relative group">
+      <button id="btnPetalsToggle" class="w-12 h-12 rounded-full surface-bg text-[#6B655E] shadow-2xl border gold-border flex items-center justify-center hover:scale-105 active:scale-95 transition-all" title="Pausar o Activar Pétalos">
+        <i id="petalsIcon" class="fa-solid fa-spa text-base accent-text"></i>
+      </button>
+      <span class="absolute right-14 top-1/2 -translate-y-1/2 bg-[#2C2825] text-white text-[11px] font-medium tracking-wide py-1 px-2.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md">
+        Animación de Pétalos
+      </span>
+    </div>
+
+  </div>
+
+  <!-- NAVEGACIÓN -->
+  <nav class="sticky top-0 z-30 surface-bg/90 backdrop-blur-md border-b gold-border transition-colors duration-500">
+    <div class="max-w-5xl mx-auto px-5 py-3.5 flex items-center justify-between">
+      <a href="#hero" class="font-script text-2xl md:text-3xl text-[#2C2825] hover:opacity-80 transition-opacity">
+        Yanella & Rodrigo
+      </a>
+
+      <div class="hidden md:flex items-center space-x-6 text-[11px] uppercase tracking-[0.2em] font-medium text-[#6B655E]">
+        <a href="#itinerario" class="hover:text-black transition-colors">Itinerario</a>
+        <a href="#ubicacion" class="hover:text-black transition-colors">Ubicación</a>
+        <a href="#dresscode" class="hover:text-black transition-colors">Dress Code</a>
+        <a href="#regalos" class="hover:text-black transition-colors">Regalos</a>
+        <a href="#mensajes" class="px-4 py-2 rounded-full border gold-border accent-text hover:text-black transition-all font-semibold">Dejar Mensaje</a>
+      </div>
+
+      <button id="btnMobileMenu" class="md:hidden text-[#2C2825] p-1.5 focus:outline-none" aria-label="Abrir Menú">
+        <i class="fa-solid fa-bars text-xl"></i>
+      </button>
+    </div>
+
+    <div id="mobileMenu" class="hidden md:hidden surface-bg border-t gold-border px-6 py-4 flex flex-col space-y-3 text-xs tracking-widest uppercase text-center font-medium">
+      <a href="#itinerario" class="mobile-nav-link py-1">Itinerario</a>
+      <a href="#ubicacion" class="mobile-nav-link py-1">Ubicación</a>
+      <a href="#dresscode" class="mobile-nav-link py-1">Dress Code</a>
+      <a href="#regalos" class="mobile-nav-link py-1">Regalos</a>
+      <a href="#mensajes" class="mobile-nav-link py-2 accent-bg text-white rounded-full font-semibold">Dejar Mensaje</a>
+    </div>
+  </nav>
+
+  <!-- SECCIÓN 1: HERO PRINCIPAL -->
+  <header id="hero" class="relative min-h-[92vh] flex items-center justify-center text-center px-4 pt-16 pb-20 overflow-hidden">
+    <div class="max-w-3xl mx-auto z-10 flex flex-col items-center">
+      <!-- Coronilla ornamental: — ♡ — -->
+      <div class="flex items-center justify-center gap-3 mb-4 opacity-75">
+        <span class="h-px w-8 border-t gold-border"></span>
+        <i class="fa-regular fa-heart accent-text text-[11px]"></i>
+        <span class="h-px w-8 border-t gold-border"></span>
+      </div>
+
+      <p class="text-[11px] sm:text-xs uppercase tracking-[0.35em] accent-text font-semibold mb-3">
+        ¡NOS CASAMOS!
+      </p>
+
+      <!-- Título de nombres -->
+      <div class="my-2 select-none">
+        <h1 class="font-serif italic text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-[#2C2825] leading-none">
+          Yanella <span class="font-script not-italic text-5xl sm:text-6xl md:text-7xl lg:text-8xl accent-text align-baseline ml-1">&</span>
+        </h1>
+        <h1 class="font-serif italic text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-[#2C2825] leading-none mt-1 sm:mt-2">
+          Rodrigo
+        </h1>
+      </div>
+
+      <!-- Frase solicitada -->
+      <p class="font-serif italic text-base sm:text-lg md:text-xl text-[#6B655E] max-w-xl mx-auto mt-5 mb-8 font-light leading-relaxed">
+        «Más de 20 años construyendo nuestro camino, y hoy celebramos que el destino siempre fue estar juntos. ¡Bienvenidos al para siempre!»
+      </p>
+
+      <!-- Cápsula de Fecha -->
+      <div class="inline-flex items-center gap-2 py-2 px-6 rounded-full border gold-border surface-bg/90 backdrop-blur-sm mb-10 shadow-sm">
+        <span class="text-xs accent-text">•</span>
+        <span id="heroDateDisplay" class="font-serif tracking-widest text-xs sm:text-sm font-medium text-[#2C2825] uppercase">
+          SÁBADO, 5 DE DICIEMBRE DE 2026
+        </span>
+        <span class="text-xs accent-text">•</span>
+      </div>
+
+      <!-- Cuenta Regresiva -->
+      <div class="grid grid-cols-4 gap-3 sm:gap-4 max-w-sm sm:max-w-md mx-auto mb-10">
+        <div class="surface-bg/90 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl border gold-border gold-shadow backdrop-blur-sm flex flex-col items-center">
+          <span id="cdDays" class="font-serif text-3xl sm:text-4xl font-normal text-[#2C2825] leading-none">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-[#6B655E] font-medium mt-2">DÍAS</span>
+        </div>
+        <div class="surface-bg/90 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl border gold-border gold-shadow backdrop-blur-sm flex flex-col items-center">
+          <span id="cdHours" class="font-serif text-3xl sm:text-4xl font-normal text-[#2C2825] leading-none">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-[#6B655E] font-medium mt-2">HORAS</span>
+        </div>
+        <div class="surface-bg/90 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl border gold-border gold-shadow backdrop-blur-sm flex flex-col items-center">
+          <span id="cdMins" class="font-serif text-3xl sm:text-4xl font-normal text-[#2C2825] leading-none">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-[#6B655E] font-medium mt-2">MIN</span>
+        </div>
+        <div class="surface-bg/90 py-3 px-3 sm:py-4 sm:px-5 rounded-2xl border gold-border gold-shadow backdrop-blur-sm flex flex-col items-center">
+          <span id="cdSecs" class="font-serif text-3xl sm:text-4xl font-normal accent-text leading-none">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-[#6B655E] font-medium mt-2">SEG</span>
+        </div>
+      </div>
+
+      <!-- Botón ovalado -->
+      <a href="#mensajes" class="inline-flex items-center gap-2 px-8 py-3.5 accent-bg text-white text-xs uppercase tracking-[0.18em] font-medium rounded-full shadow-md hover:shadow-lg transition-all">
+        <i class="fa-regular fa-comment-dots text-sm"></i> DEJAR UN MENSAJE A LOS NOVIOS
+      </a>
+    </div>
+  </header>
+
+  <!-- SECCIÓN 2: ITINERARIO DEL EVENTO -->
+  <section id="itinerario" class="py-20 surface-bg border-y gold-border relative z-20">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="text-center mb-16">
+        <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold block mb-1">MOMENTOS ESPECIALES</span>
+        <h2 class="font-serif text-4xl sm:text-5xl text-[#2C2825] font-normal">Itinerario del Evento</h2>
+        <div class="w-16 h-px accent-bg mx-auto mt-4 mb-4"></div>
+        <p class="text-xs md:text-sm text-[#6B655E] max-w-md mx-auto font-light leading-relaxed">
+          Un recorrido diseñado para disfrutar cada instante junto a las personas que más queremos.
+        </p>
+      </div>
+
+      <!-- Cuadrícula de 3 Momentos Principales -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        
+        <!-- Momento 1: 17:00 HRS - Ceremonia -->
+        <div class="card-alt-bg p-8 sm:p-10 rounded-[28px] border gold-border text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center justify-between min-h-[350px]">
+          <div class="w-16 h-16 rounded-full surface-bg flex items-center justify-center shadow-sm mb-5 relative border gold-border">
+            <span class="relative inline-flex items-center justify-center text-xl">
+              <i class="fa-solid fa-user-group text-lg accent-text"></i>
+              <i class="fa-solid fa-heart text-[10px] text-[#BE5C8E] absolute -top-1.5 -right-2"></i>
+            </span>
+          </div>
+          <div>
+            <span class="text-xs font-semibold accent-text tracking-wider block mb-1.5 uppercase">17:00 HRS</span>
+            <h3 class="font-serif text-2xl text-[#2C2825] font-normal mb-3">Ceremonia</h3>
+            <p class="text-xs text-[#6B655E] font-light leading-relaxed">
+              Intercambio de votos y palabras de unión.
+            </p>
+          </div>
+          <div class="h-2"></div>
+        </div>
+
+        <!-- Momento 2: 18:00 HRS - Brindis & Cóctel -->
+        <div class="card-alt-bg p-8 sm:p-10 rounded-[28px] border gold-border text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center justify-between min-h-[350px]">
+          <div class="w-16 h-16 rounded-full surface-bg flex items-center justify-center accent-text text-2xl shadow-sm mb-5 border gold-border">
+            <i class="fa-solid fa-champagne-glasses"></i>
+          </div>
+          <div>
+            <span class="text-xs font-semibold accent-text tracking-wider block mb-1.5 uppercase">18:00 HRS</span>
+            <h3 class="font-serif text-2xl text-[#2C2825] font-normal mb-3">Brindis & Cóctel</h3>
+            <p class="text-xs text-[#6B655E] font-light leading-relaxed">
+              Fotos grupales, corte del pastel, discursos y momentos para compartir.
+            </p>
+          </div>
+          <div class="h-2"></div>
+        </div>
+
+        <!-- Momento 3: 21:00 HRS - Karaoke & Fiesta -->
+        <div class="card-alt-bg p-8 sm:p-10 rounded-[28px] border gold-border text-center shadow-sm hover:shadow-md transition-shadow flex flex-col items-center justify-between min-h-[350px]">
+          <div class="w-16 h-16 rounded-full surface-bg flex items-center justify-center accent-text shadow-sm mb-5 border gold-border">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="4"></line>
+              <circle cx="12" cy="4" r="0.8" fill="currentColor"></circle>
+              <circle cx="12" cy="13" r="7.5"></circle>
+              <line x1="4.5" y1="13" x2="19.5" y2="13"></line>
+              <line x1="6" y1="9.5" x2="18" y2="9.5"></line>
+              <line x1="6" y1="16.5" x2="18" y2="16.5"></line>
+              <ellipse cx="12" cy="13" rx="3.8" ry="7.5"></ellipse>
+              <path d="M20 5l.7 1.4L22 7l-1.3.6-.7 1.4-.7-1.4L18 7l1.3-.6L20 5z" fill="currentColor" stroke="none"></path>
+              <path d="M3 18l.4.8.8.4-.8.4-.4.8-.4-.8-.8-.4.8-.4.4-.8z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="text-xs font-semibold accent-text tracking-wider block mb-1.5 uppercase">21:00 HRS</span>
+            <h3 class="font-serif text-2xl text-[#2C2825] font-normal mb-3">Karaoke & Fiesta</h3>
+            <p class="text-xs text-[#6B655E] font-light leading-relaxed">
+              Servicio de buffet disponible, pista de baile encendida y karaoke toda la noche.
+            </p>
+          </div>
+          <div class="h-2"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: LUGAR DEL EVENTO -->
+  <section id="ubicacion" class="py-24 px-5 max-w-4xl mx-auto relative z-20">
+    <div class="text-center mb-16">
+      <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold">¿Dónde será el encuentro?</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-[#2C2825] font-normal">Lugar de Celebración</h2>
+      <div class="w-16 h-px accent-bg mx-auto mt-4"></div>
+      <p class="font-serif italic text-base md:text-lg text-[#6B655E] max-w-lg mx-auto mt-3 font-light">
+        Para que todos disfrutemos cómodamente sin traslados, realizaremos todo en un único recinto.
+      </p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-8 sm:p-12 border gold-border gold-shadow text-center relative overflow-hidden">
+      <div class="w-16 h-16 rounded-full card-alt-bg accent-text flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner border gold-border">
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full card-alt-bg border gold-border text-[#2C2825] text-xs font-semibold tracking-wider uppercase mb-5">
+        <i class="fa-solid fa-map-pin accent-text"></i> Condominio Los Frutales — Olmué
+      </div>
+
+      <h3 class="font-serif text-3xl sm:text-4xl text-[#2C2825] mb-2">
+        Ceremonia, Recepción & Fiesta en el Mismo Recinto
+      </h3>
+
+      <p class="text-xs sm:text-sm text-[#6B655E] font-light leading-relaxed max-w-xl mx-auto mb-6">
+        Nos reuniremos en <strong>Condominio Los Frutales</strong>, Olmué. Puedes abrir la ubicación exacta directamente en tu app favorita de navegación:
+      </p>
+
+      <!-- Botones de Navegación GPS -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-8">
+        <a href="https://maps.google.com/?q=-33.013667,-71.194222" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full accent-bg text-white text-xs uppercase tracking-wider font-semibold shadow-sm hover:shadow-md transition-all active:scale-95">
+          <i class="fa-brands fa-google"></i> Abrir en Google Maps
+        </a>
+        <a href="https://waze.com/ul?ll=-33.013667,-71.194222&navigate=yes" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full surface-bg border gold-border text-[#2C2825] hover:bg-stone-50 text-xs uppercase tracking-wider font-semibold shadow-sm hover:shadow-md transition-all active:scale-95">
+          <i class="fa-brands fa-waze accent-text"></i> Abrir en Waze
+        </a>
+      </div>
+
+      <!-- Recuadro exterior con tarjetas en card-alt-bg -->
+      <div class="border gold-border p-3.5 sm:p-4 max-w-2xl mx-auto bg-transparent">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-[#2C2825]">
+          <div class="p-4 sm:p-5 card-alt-bg rounded-2xl border gold-border flex flex-col items-center text-center">
+            <i class="fa-solid fa-car-side accent-text text-lg mb-2"></i>
+            <strong class="text-xs block font-semibold mb-1">Sin Traslados</strong>
+            <span class="text-[11px] text-[#6B655E] font-light leading-tight">Llegas y disfrutas toda la velada</span>
+          </div>
+          <div class="p-4 sm:p-5 card-alt-bg rounded-2xl border gold-border flex flex-col items-center text-center">
+            <div class="w-5 h-5 rounded bg-transparent flex items-center justify-center mb-2">
+              <span class="text-sm font-bold accent-text border border-current w-4 h-4 rounded-sm flex items-center justify-center text-[10px] leading-none">P</span>
+            </div>
+            <strong class="text-xs block font-semibold mb-1">Estacionamiento</strong>
+            <span class="text-[11px] text-[#6B655E] font-light leading-tight">Comodidad y seguridad</span>
+          </div>
+          <div class="p-4 sm:p-5 card-alt-bg rounded-2xl border gold-border flex flex-col items-center text-center">
+            <i class="fa-solid fa-champagne-glasses accent-text text-lg mb-2"></i>
+            <strong class="text-xs block font-semibold mb-1">Continuidad Total</strong>
+            <span class="text-[11px] text-[#6B655E] font-light leading-tight">De los votos directo al brindis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: CÓDIGO DE VESTIMENTA (DRESS CODE) -->
+  <section id="dresscode" class="py-20 bg-white border-y gold-border relative z-20">
+    <div class="max-w-3xl mx-auto px-5 text-center">
+      <div class="w-12 h-12 mx-auto rounded-full card-alt-bg accent-text flex items-center justify-center text-lg mb-4 border gold-border shadow-sm">
+        <i class="fa-solid fa-vest"></i>
+      </div>
+      <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold block mb-1">ETIQUETA & CONSIDERACIONES</span>
+      <h2 class="font-serif text-4xl sm:text-5xl text-[#2C2825] font-normal mb-1">Código de Vestimenta</h2>
+      <p class="font-serif italic text-2xl text-[#2C2825] mt-1 font-light">Campestre Floral / Semi-Formal</p>
+
+      <p class="text-xs sm:text-sm text-[#6B655E] mt-3 leading-relaxed font-light max-w-xl mx-auto">
+        Elegancia relajada... Deseamos que te sientas radiante y cómodo para celebrar juntos una jornada inolvidable.
+      </p>
+
+      <!-- Banner consulta a la novia -->
+      <div class="mt-7 p-4 sm:px-6 sm:py-4 card-alt-bg rounded-2xl border gold-border max-w-xl mx-auto flex items-center gap-3.5 text-left">
+        <div class="shrink-0 accent-text text-lg">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <p class="text-xs sm:text-[13px] text-[#2C2825] font-normal leading-relaxed">
+          Para armonía de la celebración, por favor <strong class="font-semibold accent-text">consulta directamente con la novia</strong> sobre los tonos y colores restringidos o excluidos para el vestuario.
+        </p>
+      </div>
+
+      <!-- Cuadros informativos: Solo Adultos y Sin Mascotas -->
+      <div class="mt-8 border gold-border p-3.5 sm:p-4 max-w-xl mx-auto bg-transparent">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-center">
+          <div class="p-5 sm:p-6 card-alt-bg rounded-2xl border gold-border flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full surface-bg flex items-center justify-center accent-text border gold-border mb-2.5 shadow-sm text-sm">
+              <i class="fa-solid fa-ban"></i>
+            </div>
+            <strong class="text-xs uppercase tracking-wider text-[#2C2825] block font-semibold mb-2">Evento Solo Adultos</strong>
+            <p class="text-[11px] text-[#6B655E] font-light leading-relaxed">
+              Amamos a sus pequeños, pero esta noche está pensada para que papá y mamá se relajen y celebren sin preocupaciones.
+            </p>
+          </div>
+
+          <div class="p-5 sm:p-6 card-alt-bg rounded-2xl border gold-border flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full surface-bg flex items-center justify-center accent-text border gold-border mb-2.5 shadow-sm text-sm">
+              <i class="fa-solid fa-paw"></i>
+            </div>
+            <strong class="text-xs uppercase tracking-wider text-[#2C2825] block font-semibold mb-2">Sin Mascotas</strong>
+            <p class="text-[11px] text-[#6B655E] font-light leading-relaxed">
+              Por directrices del recinto y logística de seguridad de la fiesta, no está permitido el ingreso de mascotas.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: REGALOS / TRANSFERENCIA BANCARIA -->
+  <section id="regalos" class="py-24 px-5 max-w-3xl mx-auto relative z-20">
+    <div class="text-center mb-14">
+      <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold">Muestra de Afecto</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-[#2C2825] font-normal">Mesa de Regalos & Gratitud</h2>
+      <div class="w-16 h-px accent-bg mx-auto mt-4"></div>
+      <p class="text-xs sm:text-sm text-[#6B655E] max-w-md mx-auto mt-3 font-light leading-relaxed">
+        El regalo más valioso es tu presencia y tu cariño. Si deseas tener un detalle adicional, una contribución para nuestra luna de miel y nuestro hogar nos llenará de gratitud.
+      </p>
+    </div>
+
+    <div class="surface-bg rounded-3xl p-8 border gold-border gold-shadow text-center">
+      <div class="w-14 h-14 mx-auto rounded-full accent-light-bg accent-text flex items-center justify-center text-xl mb-4 border gold-border">
+        <i class="fa-solid fa-gift"></i>
+      </div>
+
+      <h3 class="font-serif text-2xl text-[#2C2825] mb-2">Transferencia Bancaria</h3>
+      <p class="text-xs text-[#6B655E] mb-6 font-light">Puedes copiar los datos con un solo clic para transferir cómodamente:</p>
+
+      <div class="card-alt-bg rounded-2xl p-5 text-left font-mono text-xs text-[#2C2825] border gold-border space-y-2 mb-6 select-all max-w-lg mx-auto">
+        <div><span class="text-[#6B655E] font-sans">Banco / Entidad:</span> <strong>Mercado Pago</strong></div>
+        <div><span class="text-[#6B655E] font-sans">Titular:</span> <strong>Yanella Karina Peñailillo Arancibia</strong></div>
+        <div><span class="text-[#6B655E] font-sans">Tipo de Cuenta:</span> <strong>Cuenta Vista</strong></div>
+        <div><span class="text-[#6B655E] font-sans">N° de Cuenta:</span> <strong>1083296027</strong></div>
+        <div><span class="text-[#6B655E] font-sans">RUT:</span> <strong>13.225.272-6</strong></div>
+        <div><span class="text-[#6B655E] font-sans">Email:</span> <strong>beyanella@gmail.com</strong></div>
+      </div>
+
+      <button id="btnCopyBank" class="px-7 py-3 accent-bg text-white rounded-full text-xs uppercase tracking-[0.18em] font-semibold hover:shadow-lg transition-all flex items-center gap-2 mx-auto shadow-md">
+        <i class="fa-regular fa-copy text-sm"></i> <span id="copyBankText">Copiar Datos Bancarios</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 7: FORMULARIO DE DEDICATORIAS -->
+  <section id="mensajes" class="py-24 px-5 surface-bg border-t gold-border relative z-20">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold">Palabras del corazón</span>
+        <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-[#2C2825] font-normal">Dedicatorias para los Novios</h2>
+        <div class="w-16 h-px accent-bg mx-auto mt-4"></div>
+        <p class="text-xs sm:text-sm text-[#6B655E] max-w-md mx-auto mt-3 font-light">
+          Queremos atesorar cada uno de tus buenos deseos. Puedes firmar con tu nombre o publicarlo de forma anónima.
+        </p>
+      </div>
+
+      <form id="wishesForm" class="card-alt-bg p-6 sm:p-10 rounded-3xl border gold-border gold-shadow space-y-6">
+        
+        <!-- Toggle Anónimo -->
+        <div class="flex items-center justify-between p-4 surface-bg rounded-2xl border gold-border">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full accent-light-bg accent-text flex items-center justify-center text-sm border gold-border">
+              <i class="fa-solid fa-user-secret"></i>
+            </div>
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[#2C2825] block">Publicar de forma Anónima</span>
+              <span class="text-[11px] text-[#6B655E] font-light">Tu nombre no será visible en el mural</span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="anonCheck" class="sr-only peer">
+            <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--wedding-accent)]"></div>
+          </label>
+        </div>
+
+        <!-- Campo Nombre / Firma -->
+        <div id="authorContainer" class="transition-all duration-300">
+          <label for="wishAuthor" class="block text-xs uppercase tracking-wider font-semibold text-[#2C2825] mb-2">
+            Tu Nombre o Familia *
+          </label>
+          <input type="text" id="wishAuthor" placeholder="Ej. Familia Soto Morales / Camila Pérez" class="w-full px-4 py-3 rounded-xl border gold-border surface-bg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-stone-400">
+        </div>
+
+        <!-- Selector de Emoción -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs uppercase tracking-wider font-semibold text-[#2C2825]">
+              Elige la emoción de tu mensaje
+            </label>
+            <span id="selectedEmojiLabel" class="text-[11px] font-medium accent-text tracking-wide">
+              Seleccionado: 💍 Boda
+            </span>
+          </div>
+
+          <!-- Cuadrícula inicial visible con botón '+' desplegable -->
+          <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="💍" data-label="Boda" checked class="hidden">
+              <span class="text-xl">💍</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Boda</span>
+            </label>
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="🥂" data-label="Brindis" class="hidden">
+              <span class="text-xl">🥂</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Brindis</span>
+            </label>
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="✨" data-label="Magia" class="hidden">
+              <span class="text-xl">✨</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Magia</span>
+            </label>
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="🎉" data-label="Fiesta" class="hidden">
+              <span class="text-xl">🎉</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Fiesta</span>
+            </label>
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="🕊️" data-label="Paz" class="hidden">
+              <span class="text-xl">🕊️</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Paz</span>
+            </label>
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+              <input type="radio" name="wishEmoji" value="❤️" data-label="Cariño" class="hidden">
+              <span class="text-xl">❤️</span>
+              <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Cariño</span>
+            </label>
+
+            <!-- Botón '+' -->
+            <button type="button" id="btnToggleMoreEmojis" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-dashed gold-border surface-bg hover:bg-stone-50 active:scale-95 transition-all text-[#6B655E] hover:text-[#2C2825]" title="Ver más emociones">
+              <span id="moreEmojiIcon" class="text-xl font-bold accent-text leading-none transition-transform duration-300">+</span>
+              <span id="moreEmojiText" class="text-[10px] mt-1 font-medium">Más</span>
+            </button>
+          </div>
+
+          <!-- Abanico desplegable categorizado -->
+          <div id="expandedEmojiPanel" class="hidden mt-3 p-4 sm:p-5 surface-bg rounded-2xl border gold-border shadow-sm transition-all duration-300 max-h-[360px] overflow-y-auto">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b gold-border sticky top-0 bg-white/95 backdrop-blur-sm z-10">
+              <span class="text-[11px] uppercase tracking-wider font-semibold accent-text">
+                Elige el tono de tu dedicatoria:
+              </span>
+              <button type="button" id="btnCloseEmojiPanel" class="text-xs text-[#6B655E] hover:text-[#2C2825] px-2.5 py-1 rounded-lg hover:bg-stone-100 transition-colors">
+                <i class="fa-solid fa-xmark mr-1"></i> Cerrar
+              </button>
+            </div>
+
+            <!-- Humor Sarcástico & Matrimonial -->
+            <div class="mb-4">
+              <span class="text-[10px] font-semibold text-[#8F6E3F] uppercase tracking-wider block mb-2">Humor, Advertencias & Sarcasmo Sano</span>
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🏃‍♂️" data-label="¡Arrepiéntete!" class="hidden">
+                  <span class="text-lg">🏃‍♂️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">¡Arrepiéntete!</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🎮💀" data-label="Game Over" class="hidden">
+                  <span class="text-lg">🎮💀</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Game Over</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="⛓️" data-label="Adiós Libertad" class="hidden">
+                  <span class="text-lg">⛓️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Adiós Libertad</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="⚰️" data-label="Ya valiste" class="hidden">
+                  <span class="text-lg">⚰️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Ya valiste</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🚨" data-label="Sálvese quien pueda" class="hidden">
+                  <span class="text-lg">🚨</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Sálvese quien pueda</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🪢" data-label="La soga al cuello" class="hidden">
+                  <span class="text-lg">🪢</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Soga al cuello</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🤔" data-label="¿Están seguros?" class="hidden">
+                  <span class="text-lg">🤔</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">¿Seguros?</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🛑" data-label="No hay retorno" class="hidden">
+                  <span class="text-lg">🛑</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Sin retorno</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="💸" data-label="Adiós ahorros" class="hidden">
+                  <span class="text-lg">💸</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Adiós ahorros</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🍿" data-label="Vine por el chisme" class="hidden">
+                  <span class="text-lg">🍿</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Vine x chisme</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🍕" data-label="Solo vine por el buffet" class="hidden">
+                  <span class="text-lg">🍕</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Por la comida</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🍻" data-label="Barra libre" class="hidden">
+                  <span class="text-lg">🍻</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Barra libre</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🎤💥" data-label="Destruiré el Karaoke" class="hidden">
+                  <span class="text-lg">🎤💥</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Rey karaoke</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🕺💃" data-label="A romper la pista" class="hidden">
+                  <span class="text-lg">🕺💃</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">A la pista</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Novios, Boda & Amor -->
+            <div class="mb-4">
+              <span class="text-[10px] font-semibold text-[#8F6E3F] uppercase tracking-wider block mb-2">Novios, Boda & Amor Eterno</span>
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="👰‍♀️" data-label="Novia Radiante" class="hidden">
+                  <span class="text-lg">👰‍♀️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Novia</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🤵‍♂️" data-label="Novio Elegante" class="hidden">
+                  <span class="text-lg">🤵‍♂</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Novio</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="💖" data-label="Amor Brillante" class="hidden">
+                  <span class="text-lg">💖</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Brillante</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌹" data-label="Rosa Eterna" class="hidden">
+                  <span class="text-lg">🌹</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Rosa</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="💐" data-label="Ramo Nupcial" class="hidden">
+                  <span class="text-lg">💐</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Ramo</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="💒" data-label="Votos Sagrados" class="hidden">
+                  <span class="text-lg">💒</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Votos</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Nuevos Deseos de Amor Profundo, Ternura & Vida Juntos (30 Opciones Adicionales) -->
+            <div class="mb-4">
+              <span class="text-[10px] font-semibold text-[#8F6E3F] uppercase tracking-wider block mb-2">Amor Profundo, Ternura & Vida Juntos</span>
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="♾️" data-label="Amor Eterno" class="hidden">
+                  <span class="text-lg">♾️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Amor Eterno</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌌" data-label="Almas Gemelas" class="hidden">
+                  <span class="text-lg">🌌</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Almas Gemelas</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="👴👵" data-label="Hasta Viejitos" class="hidden">
+                  <span class="text-lg">👴👵</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Hasta Viejitos</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🏡" data-label="Hogar Dulce Hogar" class="hidden">
+                  <span class="text-lg">🏡</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Dulce Hogar</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🕊️✨" data-label="Bendición Celestial" class="hidden">
+                  <span class="text-lg">🕊️✨</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Bendición</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌸" data-label="Amor Bonito" class="hidden">
+                  <span class="text-lg">🌸</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Amor Bonito</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="📜" data-label="Promesa Sagrada" class="hidden">
+                  <span class="text-lg">📜</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Promesa</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🕯️" data-label="Luz en el Camino" class="hidden">
+                  <span class="text-lg">🕯️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Luz de Guía</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="📖" data-label="Historia Soñada" class="hidden">
+                  <span class="text-lg">📖</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Nuestra Historia</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="⛵" data-label="Viaje de la Vida" class="hidden">
+                  <span class="text-lg">⛵</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Buen Viaje</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="💫" data-label="Destino Escrito" class="hidden">
+                  <span class="text-lg">💫</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">El Destino</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🛡❤️" data-label="Refugio Seguro" class="hidden">
+                  <span class="text-lg">🛡️❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Mi Refugio</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🧱❤️" data-label="Amor que Construye" class="hidden">
+                  <span class="text-lg">🧱❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Construcción</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌿" data-label="Paz en el Alma" class="hidden">
+                  <span class="text-lg">🌿</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Paz y Calma</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🍯" data-label="Dulzura Pura" class="hidden">
+                  <span class="text-lg">🍯</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Pura Miel</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌤️" data-label="Cielo en la Tierra" class="hidden">
+                  <span class="text-lg">🌤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Días Claros</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🤝❤️" data-label="Compañeros de Vida" class="hidden">
+                  <span class="text-lg">🤝❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Compañeros</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="👀💖" data-label="Miradas Cómplices" class="hidden">
+                  <span class="text-lg">👀💖</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Complicidad</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌱" data-label="Florecer Juntos" class="hidden">
+                  <span class="text-lg">🌱</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Florecer</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌅" data-label="Nuevos Amaneceres" class="hidden">
+                  <span class="text-lg">🌅</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Amaneceres</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🧭" data-label="Mi Norte Eres Tú" class="hidden">
+                  <span class="text-lg">🧭</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Mi Brújula</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="⚓" data-label="Amor Inquebrantable" class="hidden">
+                  <span class="text-lg">⚓</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Firme Ancla</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🎶❤️" data-label="Melodía Perfecta" class="hidden">
+                  <span class="text-lg">🎶❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Sintonía</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="☕❤️" data-label="Café de a Dos" class="hidden">
+                  <span class="text-lg">☕❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Café Juntos</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🔐" data-label="Promesa Eterna" class="hidden">
+                  <span class="text-lg">🔐</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Bajo Llave</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🫂" data-label="Abrazo Eterno" class="hidden">
+                  <span class="text-lg">🫂</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Abrazo Real</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌷" data-label="Primavera en el Alma" class="hidden">
+                  <span class="text-lg">🌷</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Primavera</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🧸❤️" data-label="Ternura Infinita" class="hidden">
+                  <span class="text-lg">🧸❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Pura Ternura</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌈" data-label="Paz tras la Tormenta" class="hidden">
+                  <span class="text-lg">🌈</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Arcoíris</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="👑❤️" data-label="Mi Gran Amor" class="hidden">
+                  <span class="text-lg">👑❤️</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Rey y Reina</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Celebración & Alegría -->
+            <div>
+              <span class="text-[10px] font-semibold text-[#8F6E3F] uppercase tracking-wider block mb-2">Celebración & Alegría</span>
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🎂" data-label="Torta de Novios" class="hidden">
+                  <span class="text-lg">🎂</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Torta</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🪩" data-label="Pista Disco" class="hidden">
+                  <span class="text-lg">🪩</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Bola Disco</span>
+                </label>
+                <label class="emoji-option flex flex-col items-center p-2 rounded-xl border gold-border card-alt-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-white transition-all text-center">
+                  <input type="radio" name="wishEmoji" value="🌟" data-label="Estrella Guía" class="hidden">
+                  <span class="text-lg">🌟</span>
+                  <span class="text-[9px] text-[#6B655E] mt-1 truncate w-full">Estrella</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Área de Texto del Mensaje -->
+        <div>
+          <label for="wishText" class="block text-xs uppercase tracking-wider font-semibold text-[#2C2825] mb-2">
+            Tu Mensaje o Dedicatoria *
+          </label>
+          <textarea id="wishText" rows="3" required placeholder="Escribe aquí tus palabras de felicidad para Yanella y Rodrigo..." class="w-full px-4 py-3 rounded-xl border gold-border surface-bg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-4 accent-bg text-white rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:shadow-lg transition-all shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane text-sm"></i> Publicar en el Mural
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 8: MURAL DE FELICITACIONES -->
+  <section id="mural" class="py-24 px-5 max-w-5xl mx-auto relative z-20">
+    <div class="text-center mb-16">
+      <span class="text-xs uppercase tracking-[0.3em] accent-text font-semibold">Recuerdos Vivos</span>
+      <h2 class="font-serif text-4xl sm:text-5xl mt-2 text-[#2C2825] font-normal">Mural de Felicitaciones</h2>
+      <div class="w-16 h-px accent-bg mx-auto mt-4"></div>
+      <p class="font-serif italic text-base md:text-lg text-[#6B655E] max-w-lg mx-auto mt-3 font-light">
+        Mensajes cargados de cariño que los novios guardarán por siempre en su memoria.
+      </p>
+    </div>
+
+    <div id="muralGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </section>
+
+  <footer class="py-16 text-center bg-white border-t gold-border relative z-20">
+    <div class="max-w-xl mx-auto px-5">
+      <h3 class="font-script text-4xl sm:text-5xl text-[#2C2825] mb-2">
+        Yanella & Rodrigo
+      </h3>
+      <p class="text-xs uppercase tracking-[0.28em] accent-text font-medium mb-4">
+        #BodaYanellaYRodrigo
+      </p>
+      <div class="w-12 h-px accent-bg mx-auto mb-5"></div>
+      <p class="text-xs text-[#6B655E] font-light leading-relaxed">
+        Gracias por acompañarnos y ser parte imprescindible de nuestra historia.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast Flotante -->
+  <div id="toast" class="fixed top-6 right-6 z-50 bg-[#2C2825] text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs tracking-wider transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none">
+    <i id="toastIcon" class="fa-solid fa-circle-check accent-text text-base"></i>
+    <span id="toastMessage">Operación realizada</span>
+  </div>
+
+  <script>
+    /* ===============================================================
+       1. CONFIGURACIÓN DE FECHA & MÚSICA
+       =============================================================== */
+    const WEDDING_DATE = "2026-12-05T17:00:00";
+    const DISPLAY_DATE_TEXT = "Sábado, 5 de Diciembre de 2026";
+
+    const MUSIC_CONFIG = {
+      BRIDE_AUDIO_URL: "", // Pega URL si tienes mp3 real para Yanella
+      GROOM_AUDIO_URL: ""  // Pega URL si tienes mp3 real para Rodrigo
+    };
+
+    document.getElementById('heroDateDisplay').textContent = DISPLAY_DATE_TEXT;
+
+    /* ===============================================================
+       2. NOTIFICACIÓN TOAST
+       =============================================================== */
+    function showToast(message, icon = "fa-circle-check") {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMessage.textContent = message;
+      toastIcon.className = `fa-solid ${icon} accent-text text-base`;
+      toast.classList.remove('-translate-y-28', 'opacity-0');
+
+      setTimeout(() => {
+        toast.classList.add('-translate-y-28', 'opacity-0');
+      }, 3200);
+    }
+
+    /* ===============================================================
+       3. CUENTA REGRESIVA
+       =============================================================== */
+    function initCountdown() {
+      function updateTimer() {
+        const target = new Date(WEDDING_DATE).getTime();
+        const now = new Date().getTime();
+        const diff = target - now;
+
+        if (diff <= 0) {
+          document.getElementById('cdDays').textContent = '00';
+          document.getElementById('cdHours').textContent = '00';
+          document.getElementById('cdMins').textContent = '00';
+          document.getElementById('cdSecs').textContent = '00';
+          return;
+        }
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('cdDays').textContent = d < 10 ? '0' + d : d;
+        document.getElementById('cdHours').textContent = h < 10 ? '0' + h : h;
+        document.getElementById('cdMins').textContent = m < 10 ? '0' + m : m;
+        document.getElementById('cdSecs').textContent = s < 10 ? '0' + s : s;
+      }
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    /* ===============================================================
+       4. COPIAR DATOS BANCARIOS
+       =============================================================== */
+    document.getElementById('btnCopyBank').addEventListener('click', function() {
+      const textToCopy = 
+`DATOS DE TRANSFERENCIA — BODA YANELLA & RODRIGO
+Banco: Mercado Pago
+Titular: Yanella Karina Peñailillo Arancibia
+Tipo de Cuenta: Cuenta Vista
+N° de Cuenta: 1083296027
+RUT: 13.225.272-6
+Email: beyanella@gmail.com`;
+
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("Datos bancarios copiados al portapapeles");
+        const btnText = document.getElementById('copyBankText');
+        const prev = btnText.textContent;
+        btnText.textContent = "¡Datos Copiados!";
+        setTimeout(() => { btnText.textContent = prev; }, 2400);
+      } catch (err) {
+        showToast("Copia los datos manualmente", "fa-circle-exclamation");
+      }
+      document.body.removeChild(textArea);
+    });
+
+    /* ===============================================================
+       5. MENÚ MÓVIL
+       =============================================================== */
+    const btnMobileMenu = document.getElementById('btnMobileMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    btnMobileMenu.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    /* ===============================================================
+       6. CANVAS DE PÉTALOS REACTIVO
+       =============================================================== */
+    let petalsActive = true;
+    let petalPalette = 'gold';
+    const canvas = document.getElementById('petalCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    function getPetalColor(palette) {
+      if (palette === 'bride') {
+        const rand = Math.random();
+        if (rand < 0.35) return 'rgba(248, 211, 228, 0.6)';
+        if (rand < 0.70) return 'rgba(205, 156, 158, 0.5)';
+        return 'rgba(190, 92, 142, 0.45)';
+      } else {
+        return Math.random() > 0.4 ? 'rgba(235, 192, 192, 0.45)' : 'rgba(212, 175, 55, 0.35)';
+      }
+    }
+
+    const petals = Array.from({ length: 32 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 8 + 5,
+      speedX: Math.random() * 1.2 - 0.4,
+      speedY: Math.random() * 1.3 + 0.7,
+      angle: Math.random() * 360,
+      spin: Math.random() * 1.6 - 0.8,
+      color: getPetalColor('gold')
+    }));
+
+    function refreshPetalColors(palette) {
+      petalPalette = palette;
+      petals.forEach(p => {
+        p.color = getPetalColor(palette);
+      });
+    }
+
+    function drawPetals() {
+      if (!petalsActive) return;
+      ctx.clearRect(0, 0, width, height);
+
+      petals.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.angle * Math.PI) / 180);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(p.size / 2, -p.size, p.size * 1.2, -p.size / 3, 0, p.size);
+        ctx.bezierCurveTo(-p.size * 1.2, -p.size / 3, -p.size / 2, -p.size, 0, 0);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        ctx.restore();
+
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.angle += p.spin;
+
+        if (p.y > height + 20) {
+          p.y = -20;
+          p.x = Math.random() * width;
+        }
+        if (p.x > width + 20) p.x = -20;
+        if (p.x < -20) p.x = width + 20;
+      });
+
+      requestAnimationFrame(drawPetals);
+    }
+    drawPetals();
+
+    document.getElementById('btnPetalsToggle').addEventListener('click', function() {
+      petalsActive = !petalsActive;
+      const icon = document.getElementById('petalsIcon');
+      if (petalsActive) {
+        icon.className = "fa-solid fa-spa text-base accent-text";
+        drawPetals();
+        showToast("Pétalos flotantes activados");
+      } else {
+        icon.className = "fa-solid fa-eye-slash text-base accent-text";
+        ctx.clearRect(0, 0, width, height);
+        showToast("Pétalos pausados");
+      }
+    });
+
+    /* ===============================================================
+       7. AUDIO ENGINE & CAMBIO DE PALETA YANELLA / RODRIGO
+       =============================================================== */
+    let audioCtx = null;
+    let isPlaying = false;
+    let currentTrack = null;
+    let bubblesOpen = false;
+    let synthInterval = null;
+
+    const externalAudio = new Audio();
+    externalAudio.loop = true;
+
+    // Tema Yanella (C mayor dulce y armónica)
+    const brideChords = [
+      [523.25, 659.25, 783.99, 987.77],
+      [349.23, 440.00, 523.25, 659.25],
+      [392.00, 493.88, 587.33, 880.00],
+      [440.00, 523.25, 659.25, 783.99]
+    ];
+    let brideIndex = 0;
+
+    // Tema Rodrigo (D menor cálida e íntima)
+    const groomChords = [
+      [293.66, 349.23, 440.00, 659.25],
+      [220.00, 261.63, 329.63, 392.00],
+      [233.08, 293.66, 349.23, 440.00],
+      [261.63, 329.63, 392.00, 523.25]
+    ];
+    let groomIndex = 0;
+
+    function playSynthArpeggio(track) {
+      if (!isPlaying || !audioCtx) return;
+
+      const isBride = track === 'bride';
+      const chords = isBride ? brideChords : groomChords;
+      let index = isBride ? brideIndex : groomIndex;
+      const currentChord = chords[index % chords.length];
+
+      if (isBride) brideIndex++; else groomIndex++;
+
+      currentChord.forEach((freq, idx) => {
+        setTimeout(() => {
+          if (!isPlaying || !audioCtx || currentTrack !== track) return;
+
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = isBride ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+          gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+          if (isBride) {
+            gain.gain.linearRampToValueAtTime(0.032, audioCtx.currentTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+          } else {
+            gain.gain.linearRampToValueAtTime(0.040, audioCtx.currentTime + 0.35);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.9);
+          }
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 3.0);
+        }, idx * (isBride ? 240 : 310));
+      });
+    }
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function stopAllAudio() {
+      if (synthInterval) {
+        clearInterval(synthInterval);
+        synthInterval = null;
+      }
+      externalAudio.pause();
+      externalAudio.currentTime = 0;
+    }
+
+    function updateTrackUI() {
+      const brideDot = document.getElementById('brideActiveDot');
+      const groomDot = document.getElementById('groomActiveDot');
+      const muteIcon = document.getElementById('muteIcon');
+      const btnBride = document.getElementById('btnBrideTrack');
+      const btnGroom = document.getElementById('btnGroomTrack');
+
+      if (currentTrack === 'bride') {
+        brideDot.classList.remove('hidden');
+        groomDot.classList.add('hidden');
+        btnBride.classList.add('ring-2', 'ring-[#BE5C8E]', 'bg-pink-50');
+        btnGroom.classList.remove('ring-2', 'ring-[#B38E5D]', 'bg-amber-50');
+      } else if (currentTrack === 'groom') {
+        groomDot.classList.remove('hidden');
+        brideDot.classList.add('hidden');
+        btnGroom.classList.add('ring-2', 'ring-[#B38E5D]', 'bg-amber-50');
+        btnBride.classList.remove('ring-2', 'ring-[#BE5C8E]', 'bg-pink-50');
+      } else {
+        brideDot.classList.add('hidden');
+        groomDot.classList.add('hidden');
+        btnBride.classList.remove('ring-2', 'ring-[#BE5C8E]', 'bg-pink-50');
+        btnGroom.classList.remove('ring-2', 'ring-[#B38E5D]', 'bg-amber-50');
+      }
+
+      if (isPlaying) {
+        muteIcon.className = "fa-solid fa-volume-high text-base text-emerald-600 pulse-playing";
+      } else {
+        muteIcon.className = "fa-solid fa-volume-xmark text-base accent-text";
+      }
+    }
+
+    function applyThemeForTrack(track) {
+      if (track === 'bride') {
+        document.body.classList.add('theme-bride');
+        refreshPetalColors('bride');
+      } else {
+        document.body.classList.remove('theme-bride');
+        refreshPetalColors('gold');
+      }
+    }
+
+    function playTrack(track) {
+      initAudioContext();
+      stopAllAudio();
+      currentTrack = track;
+      isPlaying = true;
+
+      applyThemeForTrack(track);
+
+      const customUrl = track === 'bride' ? MUSIC_CONFIG.BRIDE_AUDIO_URL : MUSIC_CONFIG.GROOM_AUDIO_URL;
+
+      if (customUrl && customUrl.trim() !== "") {
+        externalAudio.src = customUrl;
+        externalAudio.play().catch(e => console.log("Audio play prevented:", e));
+      } else {
+        playSynthArpeggio(track);
+        synthInterval = setInterval(() => playSynthArpeggio(track), track === 'bride' ? 2400 : 2700);
+      }
+
+      updateTrackUI();
+      showToast(track === 'bride' ? "Estética & Tema de Yanella activados ♫" : "Estética & Tema de Rodrigo activados ♫");
+    }
+
+    function toggleBubbles(forceOpen = null) {
+      bubblesOpen = forceOpen !== null ? forceOpen : !bubblesOpen;
+      const brideWrap = document.getElementById('bubbleBrideWrap');
+      const groomWrap = document.getElementById('bubbleGroomWrap');
+      const musicNoteIcon = document.getElementById('musicNoteIcon');
+
+      if (bubblesOpen) {
+        brideWrap.classList.remove('bubble-hidden');
+        brideWrap.classList.add('bubble-visible');
+        groomWrap.classList.remove('bubble-hidden');
+        groomWrap.classList.add('bubble-visible');
+        musicNoteIcon.classList.add('rotate-45');
+      } else {
+        brideWrap.classList.remove('bubble-visible');
+        brideWrap.classList.add('bubble-hidden');
+        groomWrap.classList.remove('bubble-visible');
+        groomWrap.classList.add('bubble-hidden');
+        musicNoteIcon.classList.remove('rotate-45');
+      }
+    }
+
+    document.getElementById('btnMusicNote').addEventListener('click', () => {
+      toggleBubbles();
+    });
+
+    document.getElementById('btnBrideTrack').addEventListener('click', () => {
+      playTrack('bride');
+    });
+
+    document.getElementById('btnGroomTrack').addEventListener('click', () => {
+      playTrack('groom');
+    });
+
+    document.getElementById('btnMuteToggle').addEventListener('click', () => {
+      if (isPlaying) {
+        isPlaying = false;
+        stopAllAudio();
+        updateTrackUI();
+        showToast("Música pausada");
+      } else {
+        playTrack(currentTrack || 'bride');
+      }
+    });
+
+    /* ===============================================================
+       8. SELECTOR DE EMOCIONES CÓMICAS Y ABANICO DESPLEGABLE
+       =============================================================== */
+    const btnToggleMoreEmojis = document.getElementById('btnToggleMoreEmojis');
+    const expandedEmojiPanel = document.getElementById('expandedEmojiPanel');
+    const btnCloseEmojiPanel = document.getElementById('btnCloseEmojiPanel');
+    const selectedEmojiLabel = document.getElementById('selectedEmojiLabel');
+    const moreEmojiIcon = document.getElementById('moreEmojiIcon');
+    const moreEmojiText = document.getElementById('moreEmojiText');
+
+    function toggleEmojiPanel(force = null) {
+      const willShow = force !== null ? force : expandedEmojiPanel.classList.contains('hidden');
+      if (willShow) {
+        expandedEmojiPanel.classList.remove('hidden');
+        moreEmojiIcon.textContent = "−";
+        moreEmojiText.textContent = "Menos";
+      } else {
+        expandedEmojiPanel.classList.add('hidden');
+        moreEmojiIcon.textContent = "+";
+        moreEmojiText.textContent = "Más";
+      }
+    }
+
+    btnToggleMoreEmojis.addEventListener('click', () => toggleEmojiPanel());
+    btnCloseEmojiPanel.addEventListener('click', () => toggleEmojiPanel(false));
+
+    // Escuchar cualquier selección de emoción
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.name === 'wishEmoji') {
+        const label = e.target.getAttribute('data-label') || 'Emoción';
+        selectedEmojiLabel.textContent = `Seleccionado: ${e.target.value} ${label}`;
+      }
+    });
+
+    /* ===============================================================
+       9. GESTIÓN DEL MURAL DE MENSAJES (LOCALSTORAGE + MODO ANÓNIMO)
+       =============================================================== */
+    const LOCAL_STORAGE_KEY = 'boda_yanella_rodrigo_final_wishes';
+
+    const defaultWishes = [
+      {
+        id: 1,
+        author: "Tía Patricia & Familia",
+        message: "¡Qué emoción tan grande verlos dar este paso! Que la ternura, el respeto y la alegría guíen cada uno de sus días. Los amamos con toda el alma.",
+        emoji: "💍",
+        date: "Hace unos días",
+        isAnonymous: false
+      },
+      {
+        id: 2,
+        author: "Amigo de la Universidad",
+        message: "Rodrigo, encontraste a tu gran compañera de vida. Yanella, bienvenida oficial a la familia. ¡Listos para darlo todo en la pista de baile!",
+        emoji: "🥂",
+        date: "Ayer",
+        isAnonymous: false
+      },
+      {
+        id: 3,
+        author: "De corazón",
+        message: "Les deseamos una vida repleta de risas y complicidad. Que en los momentos de calma celebren y en los difíciles se tomen más fuerte de la mano. ¡Felicidades!",
+        emoji: "❤️",
+        date: "Hoy",
+        isAnonymous: true
+      }
+    ];
+
+    function getSavedWishes() {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!stored) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultWishes));
+        return defaultWishes;
+      }
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return defaultWishes;
+      }
+    }
+
+    function renderMural() {
+      const muralGrid = document.getElementById('muralGrid');
+      const wishes = getSavedWishes();
+      muralGrid.innerHTML = '';
+
+      wishes.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "surface-bg p-6 rounded-2xl border gold-border gold-shadow flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 relative";
+        
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b gold-border mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">${item.emoji || '💍'}</span>
+                <div>
+                  <h4 class="font-serif text-lg font-semibold text-[#2C2825] leading-tight">
+                    ${item.isAnonymous ? 'Anónimo / De corazón' : item.author}
+                  </h4>
+                  <span class="text-[10px] uppercase tracking-wider text-[#6B655E]">${item.date}</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-stamp accent-text opacity-25 text-xl"></i>
+            </div>
+
+            <p class="text-xs sm:text-sm text-[#6B655E] font-light italic leading-relaxed mb-4">
+              "${item.message}"
+            </p>
+          </div>
+
+          <div class="text-right pt-2">
+            <span class="text-[10px] font-mono accent-text uppercase tracking-widest font-semibold">
+              #YanellaYRodrigo
+            </span>
+          </div>
+        `;
+        muralGrid.appendChild(card);
+      });
+    }
+
+    const anonCheck = document.getElementById('anonCheck');
+    const authorContainer = document.getElementById('authorContainer');
+    const wishAuthorInput = document.getElementById('wishAuthor');
+
+    anonCheck.addEventListener('change', function() {
+      if (this.checked) {
+        authorContainer.classList.add('opacity-40', 'pointer-events-none');
+        wishAuthorInput.value = '';
+        wishAuthorInput.placeholder = "Publicando como: Anónimo / De corazón";
+      } else {
+        authorContainer.classList.remove('opacity-40', 'pointer-events-none');
+        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Camila Pérez";
+      }
+    });
+
+    document.getElementById('wishesForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const isAnon = anonCheck.checked;
+      const author = isAnon ? "De corazón" : (wishAuthorInput.value.trim() || "Amigo/a de los Novios");
+      const message = document.getElementById('wishText').value.trim();
+      const selectedRadio = document.querySelector('input[name="wishEmoji"]:checked');
+      const selectedEmoji = selectedRadio ? selectedRadio.value : '💍';
+
+      if (!message) {
+        showToast("Por favor escribe tu dedicatoria", "fa-circle-exclamation");
+        return;
+      }
+
+      const now = new Date();
+      const dateText = `Hoy, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+      const newWish = {
+        id: Date.now(),
+        author: author,
+        message: message,
+        emoji: selectedEmoji,
+        date: dateText,
+        isAnonymous: isAnon
+      };
+
+      const wishes = getSavedWishes();
+      wishes.unshift(newWish);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(wishes));
+
+      renderMural();
+
+      document.getElementById('wishText').value = '';
+      if (!isAnon) wishAuthorInput.value = '';
+
+      showToast("¡Tu mensaje ha sido publicado en el mural!");
+      document.getElementById('mural').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initCountdown();
+      renderMural();
+      updateTrackUI();
+    });
+  </script>
+</body>
+</html>
