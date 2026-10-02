@@ -613,7 +613,7 @@
               <span class="text-xl">🎉</span>
               <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Fiesta</span>
             </label>
-            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:bg-stone-50 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
+            <label class="emoji-option flex flex-col items-center justify-center p-2.5 rounded-xl border gold-border surface-bg cursor-pointer hover:scale-105 has-[:checked]:border-stone-800 has-[:checked]:bg-stone-100 transition-all">
               <input type="radio" name="wishEmoji" value="🕊️" data-label="Paz" class="hidden">
               <span class="text-xl">🕊️</span>
               <span class="text-[10px] text-[#6B655E] mt-1 truncate w-full text-center">Paz</span>
@@ -756,7 +756,7 @@
               </div>
             </div>
 
-            <!-- Nuevos Deseos de Amor Profundo, Ternura & Vida Juntos (30 Opciones Adicionales) -->
+            <!-- Deseos de Amor Profundo, Ternura & Vida Juntos -->
             <div class="mb-4">
               <span class="text-[10px] font-semibold text-[#8F6E3F] uppercase tracking-wider block mb-2">Amor Profundo, Ternura & Vida Juntos</span>
               <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -946,7 +946,7 @@
           <textarea id="wishText" rows="3" required placeholder="Escribe aquí tus palabras de felicidad para Yanella y Rodrigo..." class="w-full px-4 py-3 rounded-xl border gold-border surface-bg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"></textarea>
         </div>
 
-        <button type="submit" class="w-full py-4 accent-bg text-white rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:shadow-lg transition-all shadow-md flex items-center justify-center gap-2">
+        <button type="submit" id="btnSubmitWish" class="w-full py-4 accent-bg text-white rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:shadow-lg transition-all shadow-md flex items-center justify-center gap-2">
           <i class="fa-solid fa-paper-plane text-sm"></i> Publicar en el Mural
         </button>
       </form>
@@ -988,6 +988,7 @@
     <span id="toastMessage">Operación realizada</span>
   </div>
 
+  <!-- SCRIPT CLÁSICO: FECHA, PÉTALOS Y MÚSICA -->
   <script>
     /* ===============================================================
        1. CONFIGURACIÓN DE FECHA & MÚSICA
@@ -996,8 +997,8 @@
     const DISPLAY_DATE_TEXT = "Sábado, 5 de Diciembre de 2026";
 
     const MUSIC_CONFIG = {
-      BRIDE_AUDIO_URL: "audio/novia.mp3", // Pega URL si tienes mp3 real para Yanella
-      GROOM_AUDIO_URL: "audio/novio.mp3"  // Pega URL si tienes mp3 real para Rodrigo
+      BRIDE_AUDIO_URL: "audio/novia.mp3", // Si tus mp3 están en raíz usa "novia.mp3", si están en audio usa "audio/novia.mp3"
+      GROOM_AUDIO_URL: "audio/novio.mp3"
     };
 
     document.getElementById('heroDateDisplay').textContent = DISPLAY_DATE_TEXT;
@@ -1016,7 +1017,7 @@
 
       setTimeout(() => {
         toast.classList.add('-translate-y-28', 'opacity-0');
-      }, 3200);
+      }, 3400);
     }
 
     /* ===============================================================
@@ -1192,7 +1193,7 @@ Email: beyanella@gmail.com`;
     const externalAudio = new Audio();
     externalAudio.loop = true;
 
-    // Tema Yanella (C mayor dulce y armónica)
+    // Arpegios sintetizados de respaldo
     const brideChords = [
       [523.25, 659.25, 783.99, 987.77],
       [349.23, 440.00, 523.25, 659.25],
@@ -1201,7 +1202,6 @@ Email: beyanella@gmail.com`;
     ];
     let brideIndex = 0;
 
-    // Tema Rodrigo (D menor cálida e íntima)
     const groomChords = [
       [293.66, 349.23, 440.00, 659.25],
       [220.00, 261.63, 329.63, 392.00],
@@ -1320,7 +1320,11 @@ Email: beyanella@gmail.com`;
 
       if (customUrl && customUrl.trim() !== "") {
         externalAudio.src = customUrl;
-        externalAudio.play().catch(e => console.log("Audio play prevented:", e));
+        externalAudio.play().catch(e => {
+          console.log("Fallback a sintetizador por bloqueo del navegador:", e);
+          playSynthArpeggio(track);
+          synthInterval = setInterval(() => playSynthArpeggio(track), track === 'bride' ? 2400 : 2700);
+        });
       } else {
         playSynthArpeggio(track);
         synthInterval = setInterval(() => playSynthArpeggio(track), track === 'bride' ? 2400 : 2700);
@@ -1400,7 +1404,7 @@ Email: beyanella@gmail.com`;
     btnToggleMoreEmojis.addEventListener('click', () => toggleEmojiPanel());
     btnCloseEmojiPanel.addEventListener('click', () => toggleEmojiPanel(false));
 
-    // Escuchar cualquier selección de emoción
+    // Escuchar selección de emoción
     document.addEventListener('change', function(e) {
       if (e.target && e.target.name === 'wishEmoji') {
         const label = e.target.getAttribute('data-label') || 'Emoción';
@@ -1408,29 +1412,65 @@ Email: beyanella@gmail.com`;
       }
     });
 
-    /* ===============================================================
-       9. GESTIÓN DEL MURAL DE MENSAJES (LOCALSTORAGE + MODO ANÓNIMO)
-       =============================================================== */
-    const LOCAL_STORAGE_KEY = 'boda_yr_mural_2026';
+    document.addEventListener('DOMContentLoaded', () => {
+      initCountdown();
+      updateTrackUI();
+    });
+  </script>
 
-    const defaultWishes = [];
+  <!-- MÓDULO FIREBASE: CONEXIÓN REALTIME A CLOUD FIRESTORE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    function getSavedWishes() {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (!stored) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultWishes));
-        return defaultWishes;
-      }
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        return defaultWishes;
-      }
+    // 1. Configuración de tu proyecto en Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd70t7d8XFfd5MehFUABfmPT-OpUsTe74",
+      authDomain: "muralboda.firebaseapp.com",
+      projectId: "muralboda",
+      storageBucket: "muralboda.firebasestorage.app",
+      messagingSenderId: "583460475296",
+      appId: "1:583460475296:web:c173b35620242182a754c5",
+      measurementId: "G-7WT9M8N448"
+    };
+
+    // 2. Inicializar Firebase & Firestore
+    let db;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      console.error("Error al inicializar Firebase:", e);
     }
 
-    function renderMural() {
-      const muralGrid = document.getElementById('muralGrid');
-      const wishes = getSavedWishes();
+    const muralGrid = document.getElementById('muralGrid');
+    const wishesForm = document.getElementById('wishesForm');
+    const anonCheck = document.getElementById('anonCheck');
+    const authorContainer = document.getElementById('authorContainer');
+    const wishAuthorInput = document.getElementById('wishAuthor');
+    const wishTextInput = document.getElementById('wishText');
+    const btnSubmitWish = document.getElementById('btnSubmitWish');
+
+    // Manejar toggle de anónimo
+    anonCheck.addEventListener('change', function() {
+      if (this.checked) {
+        authorContainer.classList.add('opacity-40', 'pointer-events-none');
+        wishAuthorInput.value = '';
+        wishAuthorInput.placeholder = "Publicando como: Anónimo / De corazón";
+      } else {
+        authorContainer.classList.remove('opacity-40', 'pointer-events-none');
+        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Camila Pérez";
+      }
+    });
+
+    // Función para renderizar el mural con los datos de Firebase
+    function renderMuralFromDocs(wishes) {
       muralGrid.innerHTML = '';
 
       if (wishes.length === 0) {
@@ -1457,7 +1497,7 @@ Email: beyanella@gmail.com`;
                   <h4 class="font-serif text-lg font-semibold text-[#2C2825] leading-tight">
                     ${item.isAnonymous ? 'Anónimo / De corazón' : item.author}
                   </h4>
-                  <span class="text-[10px] uppercase tracking-wider text-[#6B655E]">${item.date}</span>
+                  <span class="text-[10px] uppercase tracking-wider text-[#6B655E]">${item.date || 'Reciente'}</span>
                 </div>
               </div>
               <i class="fa-solid fa-stamp accent-text opacity-25 text-xl"></i>
@@ -1478,64 +1518,96 @@ Email: beyanella@gmail.com`;
       });
     }
 
-    const anonCheck = document.getElementById('anonCheck');
-    const authorContainer = document.getElementById('authorContainer');
-    const wishAuthorInput = document.getElementById('wishAuthor');
+    // 3. Escuchar en tiempo real los mensajes de Firestore
+    if (db) {
+      const dedicatoriasCol = collection(db, "dedicatorias");
 
-    anonCheck.addEventListener('change', function() {
-      if (this.checked) {
-        authorContainer.classList.add('opacity-40', 'pointer-events-none');
-        wishAuthorInput.value = '';
-        wishAuthorInput.placeholder = "Publicando como: Anónimo / De corazón";
-      } else {
-        authorContainer.classList.remove('opacity-40', 'pointer-events-none');
-        wishAuthorInput.placeholder = "Ej. Familia Soto Morales / Camila Pérez";
-      }
-    });
+      onSnapshot(dedicatoriasCol, (snapshot) => {
+        const wishes = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          let dateStr = 'Reciente';
+          if (data.createdAt && data.createdAt.toDate) {
+            const d = data.createdAt.toDate();
+            dateStr = d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+          } else if (data.dateFallback) {
+            dateStr = data.dateFallback;
+          }
 
-    document.getElementById('wishesForm').addEventListener('submit', function(e) {
+          wishes.push({
+            id: doc.id,
+            author: data.author || 'De corazón',
+            message: data.message || '',
+            emoji: data.emoji || '💍',
+            isAnonymous: Boolean(data.isAnonymous),
+            date: dateStr,
+            rawTime: data.createdAt ? (data.createdAt.seconds || 0) : 0
+          });
+        });
+
+        // Ordenar en memoria: los más recientes arriba
+        wishes.sort((a, b) => b.rawTime - a.rawTime);
+        renderMuralFromDocs(wishes);
+      }, (error) => {
+        console.error("Error al escuchar Firestore:", error);
+        if (window.showToast) {
+          window.showToast("Nota: Revisa las Reglas de Firestore para lectura pública", "fa-circle-exclamation");
+        }
+      });
+    }
+
+    // 4. Guardar nueva dedicatoria en Firebase
+    wishesForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const isAnon = anonCheck.checked;
       const author = isAnon ? "De corazón" : (wishAuthorInput.value.trim() || "Amigo/a de los Novios");
-      const message = document.getElementById('wishText').value.trim();
+      const message = wishTextInput.value.trim();
       const selectedRadio = document.querySelector('input[name="wishEmoji"]:checked');
       const selectedEmoji = selectedRadio ? selectedRadio.value : '💍';
 
       if (!message) {
-        showToast("Por favor escribe tu dedicatoria", "fa-circle-exclamation");
+        if (window.showToast) window.showToast("Por favor escribe tu dedicatoria", "fa-circle-exclamation");
         return;
       }
 
       const now = new Date();
-      const dateText = `Hoy, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      const dateFallback = `Hoy, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-      const newWish = {
-        id: Date.now(),
-        author: author,
-        message: message,
-        emoji: selectedEmoji,
-        date: dateText,
-        isAnonymous: isAnon
-      };
+      // Estado de carga en el botón
+      const prevBtnText = btnSubmitWish.innerHTML;
+      btnSubmitWish.disabled = true;
+      btnSubmitWish.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-sm"></i> Guardando...`;
 
-      const wishes = getSavedWishes();
-      wishes.unshift(newWish);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(wishes));
+      try {
+        if (db) {
+          await addDoc(collection(db, "dedicatorias"), {
+            author: author,
+            message: message,
+            emoji: selectedEmoji,
+            isAnonymous: isAnon,
+            dateFallback: dateFallback,
+            createdAt: serverTimestamp()
+          });
 
-      renderMural();
-
-      document.getElementById('wishText').value = '';
-      if (!isAnon) wishAuthorInput.value = '';
-
-      showToast("¡Tu mensaje ha sido publicado en el mural!");
-      document.getElementById('mural').scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initCountdown();
-      renderMural();
-      updateTrackUI();
+          if (window.showToast) {
+            window.showToast("¡Tu dedicatoria se publicó para todos los invitados!");
+          }
+          wishTextInput.value = '';
+          if (!isAnon) wishAuthorInput.value = '';
+          document.getElementById('mural').scrollIntoView({ behavior: 'smooth' });
+        } else {
+          throw new Error("Base de datos no inicializada");
+        }
+      } catch (err) {
+        console.error("Error al guardar en Firebase:", err);
+        if (window.showToast) {
+          window.showToast("Revisa las 'Reglas' de Firestore en la consola de Firebase", "fa-circle-exclamation");
+        }
+      } finally {
+        btnSubmitWish.disabled = false;
+        btnSubmitWish.innerHTML = prevBtnText;
+      }
     });
   </script>
 </body>
