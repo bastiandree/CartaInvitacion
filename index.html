@@ -1057,36 +1057,6 @@
     }
 
     /* ===============================================================
-       4. COPIAR DATOS BANCARIOS
-       =============================================================== */
-    document.getElementById('btnCopyBank').addEventListener('click', function() {
-      const textToCopy = 
-`DATOS DE TRANSFERENCIA — BODA YANELLA & RODRIGO
-Banco: Mercado Pago
-Titular: Yanella Karina Peñailillo Arancibia
-Tipo de Cuenta: Cuenta Vista
-N° de Cuenta: 1083296027
-RUT: 13.225.272-6
-Email: beyanella@gmail.com`;
-
-      const textArea = document.createElement("textarea");
-      textArea.value = textToCopy;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        showToast("Datos bancarios copiados al portapapeles");
-        const btnText = document.getElementById('copyBankText');
-        const prev = btnText.textContent;
-        btnText.textContent = "¡Datos Copiados!";
-        setTimeout(() => { btnText.textContent = prev; }, 2400);
-      } catch (err) {
-        showToast("Copia los datos manualmente", "fa-circle-exclamation");
-      }
-      document.body.removeChild(textArea);
-    });
-
-    /* ===============================================================
        5. MENÚ MÓVIL
        =============================================================== */
     const btnMobileMenu = document.getElementById('btnMobileMenu');
